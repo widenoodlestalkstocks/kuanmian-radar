@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "score": 47.86,
+  "state": "中性",
+  "asOf": "2026-11-13",
+  "snapshotDate": "2026-11-14",
+  "generatedAt": "2026-11-14T13:57:37+08:00",
+  "scoreChange": 4.6,
+  "industry": [
+    {
+      "name": "新藥",
+      "score": 71.7,
+      "scoreChange": 11.4,
+      "change": 5.51,
+      "asOf": "2026-11-13"
+    },
+    {
+      "name": "ASIC",
+      "score": 67.06,
+      "scoreChange": 11.22,
+      "change": 9.46,
+      "asOf": "2026-11-13"
+    },
+    {
+      "name": "塑化",
+      "score": 61.7,
+      "scoreChange": 22.8,
+      "change": 3.07,
+      "asOf": "2026-11-13"
+    },
+    {
+      "name": "金控",
+      "score": 61.7,
+      "scoreChange": 8.4,
+      "change": 2.14,
+      "asOf": "2026-11-13"
+    },
+    {
+      "name": "玻纖布",
+      "score": 58.9,
+      "scoreChange": -1.53,
+      "change": 3.91,
+      "asOf": "2026-11-13"
+    },
+    {
+      "name": "航空",
+      "score": 58.39,
+      "scoreChange": 6.12,
+      "change": 1.78,
+      "asOf": "2026-11-13"
+    },
+    {
+      "name": "化合物半導體",
+      "score": 55.99,
+      "scoreChange": 11.72,
+      "change": 5.61,
+      "asOf": "2026-11-13"
+    },
+    {
+      "name": "測試介面",
+      "score": 55.52,
+      "scoreChange": -4.09,
+      "change": 2.74,
+      "asOf": "2026-11-13"
+    },
+    {
+      "name": "食品",
+      "score": 55.1,
+      "scoreChange": 7.1,
+      "change": 1.05,
+      "asOf": "2026-11-13"
+    },
+    {
+      "name": "紡織",
+      "score": 55.0,
+      "scoreChange": -2.33,
+      "change": 2.49,
+      "asOf": "2026-11-13"
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-11-13",
+      "score": 43.26
+    },
+    {
+      "date": "2026-11-14",
+      "score": 47.86
+    }
+  ]
+}

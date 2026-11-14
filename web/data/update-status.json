@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-14T05:14:08.668907+00:00",
+  "components": {
+    "radar": {
+      "status": "not-requested",
+      "attemptedAt": null,
+      "lastSuccessAt": null,
+      "asOf": null,
+      "errorCode": null,
+      "message": null
+    },
+    "temperature": {
+      "status": "success",
+      "attemptedAt": "2026-11-14T05:14:08.668907+00:00",
+      "lastSuccessAt": "2026-11-14T05:14:08.668907+00:00",
+      "asOf": "2026-11-13",
+      "errorCode": null,
+      "message": null
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-11-13",
+  "generatedAt": "2026-11-14T05:14:08.668907+00:00",
+  "latest": {
+    "date": "2026-11-13",
+    "temperature": 40,
+    "structure": {
+      "title": "散戶追高"
+    }
+  },
+  "history": [
+    {
+      "date": "2026-11-13",
+      "temperature": 40
+    },
+    {
+      "date": "2026-11-12",
+      "temperature": 22
+    },
+    {
+      "date": "2026-11-11",
+      "temperature": 23
+    },
+    {
+      "date": "2026-11-10",
+      "temperature": 14
+    },
+    {
+      "date": "2026-11-09",
+      "temperature": 16
+    },
+    {
+      "date": "2026-11-06",
+      "temperature": 0
+    },
+    {
+      "date": "2026-11-05",
+      "temperature": 0
+    },
+    {
+      "date": "2026-11-04",
+      "temperature": 11
+    },
+    {
+      "date": "2026-11-03",
+      "temperature": 0
+    },
+    {
+      "date": "2026-11-02",
+      "temperature": 14
+    },
+    {
+      "date": "2026-10-30",
+      "temperature": 0
+    },
+    {
+      "date": "2026-10-29",
+      "temperature": 8
+    },
+    {
+      "date": "2026-10-28",
+      "temperature": 47
+    },
+    {
+      "date": "2026-10-27",
+      "temperature": 21
+    },
+    {
+      "date": "2026-10-22",
+      "temperature": 20
+    },
+    {
+      "date": "2026-10-21",
+      "temperature": 42
+    },
+    {
+      "date": "2026-10-20",
+      "temperature": 11
+    },
+    {
+      "date": "2026-10-19",
+      "temperature": 0
+    },
+    {
+      "date": "2026-10-16",
+      "temperature": 5
+    },
+    {
+      "date": "2026-10-15",
+      "temperature": 0
+    },
+    {
+      "date": "2026-10-14",
+      "temperature": 24
+    },
+    {
+      "date": "2026-10-13",
+      "temperature": 0
+    },
+    {
+      "date": "2026-10-12",
+      "temperature": 50
+    },
+    {
+      "date": "2026-10-08",
+      "temperature": 42
+    },
+    {
+      "date": "2026-10-07",
+      "temperature": 76
+    },
+    {
+      "date": "2026-10-06",
+      "temperature": 65
+    },
+    {
+      "date": "2026-10-05",
+      "temperature": 80
+    },
+    {
+      "date": "2026-10-02",
+      "temperature": 61
+    },
+    {
+      "date": "2026-10-01",
+      "temperature": 64
+    },
+    {
+      "date": "2026-09-30",
+      "temperature": 62
+    }
+  ]
+}
