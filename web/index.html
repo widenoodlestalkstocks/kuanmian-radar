@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b2031">
+    <meta name="description" content="寬麵說股：一起看懂大盤籌碼溫度、產業資金與歷史變化。">
+    <title>寬麵說股｜大盤與資金雷達</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到主要內容</a>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="./" aria-label="寬麵說股首頁"><span class="brand-mark" aria-hidden="true">寬</span><span>寬麵說股<span class="brand-subtitle">每日市場觀察</span></span></a>
+        <button id="refresh-button" class="refresh-button" type="button"><span aria-hidden="true">↻</span> 刷新資料</button>
+      </header>
+
+      <main id="main-content">
+        <section class="intro" aria-labelledby="page-title">
+          <p class="eyebrow">先看大盤，再看資金往哪走</p>
+          <h1 id="page-title">大盤與資金，<br class="mobile-break">一起看清楚。</h1>
+          <p class="intro-copy">用兩個角度觀察台股，點一下就能往下看。</p>
+        </section>
+
+        <p id="load-status" class="load-status" role="status" aria-live="polite">正在讀取最新資料…</p>
+        <section class="overview-grid" aria-label="市場總覽">
+          <article class="overview-card temperature-card">
+            <div class="card-topline"><h2>大盤籌碼溫度</h2><span class="card-tag">大盤觀察</span></div>
+            <div class="score-line"><strong id="temperature-score">—</strong><span id="temperature-scale" class="score-unit">°C</span></div>
+            <p id="temperature-state" class="card-state">資料讀取中</p>
+            <p id="temperature-date" class="data-date">資料日：—</p>
+          </article>
+          <article class="overview-card radar-card">
+            <div class="card-topline"><h2>資金雷達總分</h2><span class="card-tag">資金觀察</span></div>
+            <div class="score-line"><strong id="radar-score">—</strong><span id="radar-scale" class="score-unit">／100</span></div>
+            <p id="radar-state" class="card-state">資料讀取中</p>
+            <p id="radar-date" class="data-date">交易日：—</p>
+          </article>
+        </section>
+
+        <div id="data-notices" class="data-notices" aria-live="polite"></div>
+
+        <nav class="view-nav" aria-label="選擇觀察內容">
+          <div class="view-tabs" role="tablist" aria-label="市場觀察分頁">
+            <button id="tab-market" class="view-tab" type="button" role="tab" aria-selected="true" aria-controls="panel-market" tabindex="0" data-view="market"><span class="nav-number" aria-hidden="true">01</span>看大盤</button>
+            <button id="tab-industry" class="view-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-industry" tabindex="-1" data-view="industry"><span class="nav-number" aria-hidden="true">02</span>看產業</button>
+            <button id="tab-history" class="view-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-history" tabindex="-1" data-view="history"><span class="nav-number" aria-hidden="true">03</span>看歷史</button>
+          </div>
+        </nav>
+
+        <section id="panel-market" class="view-panel" role="tabpanel" aria-labelledby="tab-market" tabindex="0">
+          <div class="section-heading"><div><p class="eyebrow">大盤觀察</p><h2>溫度怎麼走？</h2></div><p id="market-chart-date" class="section-date">資料日：—</p></div>
+          <div id="temperature-chart" class="chart-card"><p class="empty-state">正在讀取溫度趨勢…</p></div>
+          <article id="structure-card" class="structure-card"><p class="empty-state">正在讀取市場狀態…</p></article>
+        </section>
+
+        <section id="panel-industry" class="view-panel" role="tabpanel" aria-labelledby="tab-industry" tabindex="0" hidden>
+          <div class="section-heading"><div><p class="eyebrow">產業資金觀察</p><h2>細產業資金前 10</h2></div><p id="industry-date" class="section-date">資料日：—</p></div>
+          <p id="industry-description" class="section-description">只列資金分數前 10 個細產業，點開看產業變化。</p>
+          <div id="industry-list" class="industry-list"><p class="empty-state">正在讀取產業資料…</p></div>
+        </section>
+
+        <section id="panel-history" class="view-panel" role="tabpanel" aria-labelledby="tab-history" tabindex="0" hidden>
+          <div class="section-heading"><div><p class="eyebrow">回頭看變化</p><h2>兩套紀錄，分開看</h2></div></div>
+          <p class="section-description">溫度依來源資料日排列；雷達依每日整理日排列。雷達整理日並非交易日，主卡另列最新來源交易日。</p>
+          <section class="history-section" aria-labelledby="temperature-history-title">
+            <div class="history-heading"><h3 id="temperature-history-title">大盤籌碼溫度</h3><p id="temperature-history-dates" class="section-date">資料期間：—</p></div>
+            <div id="temperature-history-chart" class="chart-card"><p class="empty-state">正在讀取歷史資料…</p></div>
+            <div id="temperature-history-records"></div>
+          </section>
+          <section class="history-section" aria-labelledby="radar-history-title">
+            <div class="history-heading"><h3 id="radar-history-title">資金分數歷史</h3><p id="radar-history-dates" class="section-date">整理期間：—</p></div>
+            <div id="radar-history-chart" class="chart-card"><p class="empty-state">正在讀取歷史資料…</p></div>
+            <div id="radar-history-records"></div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-brand">寬麵說股<span>一起把市場看清楚。</span></div>
+        <p>本頁供市場觀察，不構成個別投資建議。</p>
+      </footer>
+    </div>
+    <noscript><p class="noscript-message">請啟用瀏覽器的 JavaScript，以查看資料與切換內容。</p></noscript>
+  </body>
+</html>
