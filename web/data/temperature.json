@@ -169,13 +169,6 @@
       "asOf": "2026-11-13",
       "net": -100870.0,
       "change": -1297.0
-    },
-    "marginMaintenanceExETF": {
-      "asOf": "2026-11-13",
-      "value": 149.754,
-      "balance": 5031.41789,
-      "balanceChange": 33.8141,
-      "status": "failed"
     }
   }
 }
