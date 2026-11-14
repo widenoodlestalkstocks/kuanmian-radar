@@ -99,6 +99,12 @@ h3{font-size:23px}
 .industry-rank{display:grid;place-items:center;width:32px;height:32px;min-width:32px;background:var(--gold-soft);border-radius:8px;font-size:18px;color:var(--gold-text);font-variant-numeric:tabular-nums}
 .industry-name{font-size:21px;font-weight:650;flex:1;overflow-wrap:anywhere;min-width:0}
 .industry-score{font-size:29px;color:var(--text);font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap}
+.industry-metrics{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;min-width:0}
+.industry-delta{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:7px;background:var(--gold-soft);color:var(--muted);font-size:20px;font-weight:700;line-height:1.5;font-variant-numeric:tabular-nums;white-space:nowrap}
+.industry-delta[data-direction="up"]{color:#F29A91;background:#341F20}
+.industry-delta[data-direction="down"]{color:#85CAA0;background:#142C22}
+:root[data-theme="light"] .industry-delta[data-direction="up"]{color:#AF332D;background:#FBEAE6}
+:root[data-theme="light"] .industry-delta[data-direction="down"]{color:#22724A;background:#E4F2E8}
 .industry-toggle .disclosure-symbol,.chips-toggle .disclosure-symbol{flex-shrink:0;color:var(--cyan);font-weight:400;font-size:25px;line-height:1}
 .industry-detail{border-top:1px solid var(--line);padding:19px 22px;background:var(--panel-deep);font-size:18px}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin:0}
@@ -172,7 +178,7 @@ h3{font-size:23px}
   .load-status{margin:12px 0 15px}.overview-grid{gap:12px}.overview-card{padding:18px 17px}.card-topline h2{font-size:21px}.score-line strong{font-size:52px}.score-unit{font-size:18px}.card-state{font-size:20px}
   .view-tab{font-size:21px;min-height:59px;gap:5px}.nav-number{display:none}.view-tabs{gap:8px}.view-panel{padding-top:25px}.section-heading{align-items:start;flex-direction:column;gap:8px}h2{font-size:27px}
   .chart-card{padding:19px 16px}.chart-top{gap:5px}.plot-area{height:180px}.plot-layout{grid-template-columns:35px minmax(0,1fr);column-gap:7px}.chart-axis-x{gap:2px}.structure-card{padding:20px}.structure-card h3{font-size:24px}
-  .industry-toggle{gap:11px;padding:14px 16px}.industry-name{font-size:20px}.industry-score{font-size:27px}.industry-detail{padding:17px 18px}.detail-grid{gap:14px}
+  .industry-toggle{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:5px 11px;padding:14px 16px}.industry-rank{grid-column:1;grid-row:1/span 2;align-self:center}.industry-name{grid-column:2;grid-row:1;font-size:20px}.industry-metrics{grid-column:2;grid-row:2;gap:8px 12px}.industry-toggle .disclosure-symbol{grid-column:3;grid-row:1/span 2}.industry-score{font-size:27px}.industry-delta{font-size:19px}.industry-detail{padding:17px 18px}.detail-grid{gap:14px}
   .chips-toggle{font-size:21px;padding:15px 18px}.chips-content{padding:18px}.chips-day{grid-template-columns:1fr;gap:13px;padding:16px}.chips-result-grid{gap:17px}.chips-result-grid dd{font-size:25px}.chips-institution-values{gap:9px}.chips-institution-values dd{font-size:22px}
   .platform-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.platform-link{min-height:88px;padding:15px 16px;font-size:20px}
 }

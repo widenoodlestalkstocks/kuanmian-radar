@@ -194,15 +194,29 @@
 
   }
 
+  function industryDeltaMarkup(row) {
+    const value = overviewScore(row.score) === null ? null : number(row.scoreChange);
+    const delta = value !== null && Math.abs(value) <= 100 ? Math.round(value * 100) / 100 : null;
+    const direction = delta === null ? "missing" : delta > 0 ? "up" : delta < 0 ? "down" : "flat";
+    const history = (Array.isArray(row.history) ? row.history : []).filter(isObject)
+      .map((point) => dateKey(point.date)).filter((date) => date && date < dateKey(row.asOf ?? state.radar?.asOf));
+    const previous = [...new Set(history)].sort().at(-1);
+    const comparison = previous ? `較 ${shortDate(previous)}` : "較前次紀錄";
+    const label = delta === null ? "比較資料不足" : `${comparison}${delta > 0 ? "上升" : delta < 0 ? "下降" : "持平"} ${fmt(Math.abs(delta), 2)} 分`;
+    const symbol = direction === "up" ? "▲" : direction === "down" ? "▼" : "";
+    const result = delta === null ? "待比較" : delta === 0 ? "持平 0" : signed(delta, "");
+    return `<span class="industry-delta" data-direction="${direction}" aria-label="${esc(label)}" title="${esc(label)}">${symbol ? `<span aria-hidden="true">${symbol}</span>` : ""}<span aria-hidden="true">${esc(result)}</span></span>`;
+  }
+
   function renderIndustry() {
     const rows = (Array.isArray(state.radar?.industry) ? state.radar.industry : []).filter(isObject).sort((a, b) => {
       const left = number(a.score), right = number(b.score);
       return left === null ? (right === null ? 0 : 1) : right === null ? -1 : right - left;
     }).slice(0, 10);
-    text("industry-description", rows.length ? "只列資金分數前 10 個細產業。點開看近5個交易日走勢。" : "目前沒有可用的產業排行。");
+    text("industry-description", rows.length ? "資金分數前 10 名。紅▲上升、綠▼下降，對照前一筆交易日紀錄。點開看5日走勢。" : "目前沒有可用的產業排行。");
     byId("industry-list").innerHTML = rows.length ? rows.map((row, index) => {
       const id = `industry-detail-${index}`;
-      return `<article class="industry-item"><button class="industry-toggle" type="button" aria-expanded="false" aria-controls="${id}" data-disclosure="${id}"><span class="industry-rank">${index + 1}</span><span class="industry-name">${esc(briefText(row.name, "未命名產業"))}</span><span class="industry-score">${esc(fmt(row.score))}</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button><div class="industry-detail" id="${id}" hidden>${industryTrendMarkup(row)}<dl class="detail-grid"><div><dt>產業資金分數</dt><dd>${esc(fmt(row.score))}${number(row.score) === null ? "" : " 分"}</dd></div><div><dt>較前次紀錄</dt><dd>${esc(signed(row.scoreChange, " 分"))}</dd></div><div><dt>平均產業日漲跌</dt><dd>${esc(signed(row.change, "%"))}</dd></div></dl><p class="detail-source">產業資料日：${esc(dateLabel(row.asOf ?? state.radar?.asOf))}</p></div></article>`;
+      return `<article class="industry-item"><button class="industry-toggle" type="button" aria-expanded="false" aria-controls="${id}" data-disclosure="${id}"><span class="industry-rank">${index + 1}</span><span class="industry-name">${esc(briefText(row.name, "未命名產業"))}</span><span class="industry-metrics"><span class="industry-score" aria-label="${esc(`資金分數 ${fmt(row.score)} 分`)}">${esc(fmt(row.score))}</span>${industryDeltaMarkup(row)}</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button><div class="industry-detail" id="${id}" hidden>${industryTrendMarkup(row)}<dl class="detail-grid"><div><dt>產業資金分數</dt><dd>${esc(fmt(row.score))}${number(row.score) === null ? "" : " 分"}</dd></div><div><dt>較前次紀錄</dt><dd>${esc(signed(row.scoreChange, " 分"))}</dd></div><div><dt>平均產業日漲跌</dt><dd>${esc(signed(row.change, "%"))}</dd></div></dl><p class="detail-source">產業資料日：${esc(dateLabel(row.asOf ?? state.radar?.asOf))}</p></div></article>`;
     }).join("") : `<p class="empty-state">資料暫時無法提供，請稍後再查看。</p>`;
   }
 
