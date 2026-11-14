@@ -1,20 +1,31 @@
 <!doctype html>
-<html lang="zh-Hant-TW">
+<html lang="zh-Hant-TW" data-theme="dark">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0b2031">
+    <meta id="theme-color" name="theme-color" content="#080A0B">
     <meta name="description" content="寬麵說股：一起看懂大盤籌碼溫度、產業資金與歷史變化。">
     <title>寬麵說股｜大盤與資金雷達</title>
-    <link rel="stylesheet" href="./styles.css?v=20261114-11">
-    <script src="./app.js?v=20261114-11" defer></script>
+    <script>
+      (() => {
+        let theme = "dark";
+        try { if (localStorage.getItem("kuanmian-theme") === "light") theme = "light"; } catch {}
+        document.documentElement.dataset.theme = theme;
+        document.getElementById("theme-color").setAttribute("content", theme === "light" ? "#F5F1E9" : "#080A0B");
+      })();
+    </script>
+    <link rel="stylesheet" href="./styles.css?v=20261114-12">
+    <script src="./app.js?v=20261114-12" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要內容</a>
     <div class="page-shell">
       <header class="site-header">
         <a class="brand" href="./" aria-label="寬麵說股首頁"><span class="brand-mark" aria-hidden="true">寬</span><span>寬麵說股<span class="brand-subtitle">每日市場觀察</span></span></a>
-        <button id="refresh-button" class="refresh-button" type="button"><span aria-hidden="true">↻</span> 刷新資料</button>
+        <div class="header-actions">
+          <button id="theme-toggle" class="theme-toggle" type="button" role="switch" aria-checked="true" aria-label="深色模式，切換為淺色"><span class="theme-option-dark" aria-hidden="true">深色</span><span class="theme-option-light" aria-hidden="true">淺色</span></button>
+          <button id="refresh-button" class="refresh-button" type="button"><span aria-hidden="true">↻</span> 刷新資料</button>
+        </div>
       </header>
 
       <main id="main-content">
@@ -94,7 +105,7 @@
           <a class="support-link" href="https://portaly.cc/widenoodlestalkstocks/support" target="_blank" rel="noopener noreferrer"><span class="support-mark" aria-hidden="true">✦</span><span>無私贊助</span><span class="support-open" aria-hidden="true">↗</span></a>
           <nav class="platform-grid" aria-label="寬麵各平台連結">
             <a class="platform-link" href="https://www.facebook.com/Windenoodles" target="_blank" rel="noopener noreferrer"><span>FB 寬麵說股2.0</span><span class="platform-open" aria-hidden="true">↗</span></a>
-            <a class="platform-link" href="https://www.youtube.com/@widenoodlestalkstocks" target="_blank" rel="noopener noreferrer" aria-label="YouTube 寬麵說股"><span>YouTube 寬麵說股</span><span class="platform-open" aria-hidden="true">↗</span></a>
+            <a class="platform-link" href="https://www.youtube.com/@widenoodlestalkstocks" target="_blank" rel="noopener noreferrer" aria-label="YouTube 寬麵說股"><span>YouTube <span class="platform-name">寬麵說股</span></span><span class="platform-open" aria-hidden="true">↗</span></a>
             <a class="platform-link" href="https://vocus.cc/salon/widenoodlestalkstock" target="_blank" rel="noopener noreferrer" aria-label="方格子 寬麵的股海踏浪筆記"><span>方格子</span><span class="platform-open" aria-hidden="true">↗</span></a>
             <a class="platform-link" href="https://portaly.cc/widenoodlestalkstocks/pages/about" target="_blank" rel="noopener noreferrer" aria-label="寬粉戰隊 官方加入流程"><span>寬粉戰隊</span><span class="platform-open" aria-hidden="true">↗</span></a>
           </nav>

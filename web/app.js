@@ -3,6 +3,18 @@
 (() => {
   const state = { radar: null, temperature: null, updateStatus: null, errors: {}, busy: false };
   const byId = (id) => document.getElementById(id);
+  function setTheme(value, persist = false) {
+    const theme = value === "light" ? "light" : "dark";
+    document.documentElement.dataset.theme = theme;
+    const button = byId("theme-toggle");
+    button.dataset.theme = theme;
+    button.setAttribute("aria-checked", String(theme === "dark"));
+    button.setAttribute("aria-label", theme === "dark" ? "深色模式，切換為淺色" : "淺色模式，切換為深色");
+    byId("theme-color").setAttribute("content", theme === "light" ? "#F5F1E9" : "#080A0B");
+    if (persist) { try { localStorage.setItem("kuanmian-theme", theme); } catch {} }
+  }
+  setTheme(document.documentElement.dataset.theme);
+  byId("theme-toggle").addEventListener("click", () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark", true));
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const text = (id, value) => { byId(id).textContent = value; };
   const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -116,7 +128,7 @@
     const latest = valid.at(-1), unit = kind === "temperature" ? "°C" : "分";
     const min = Math.floor(Math.min(0, ...valid.map((row) => row.score)) / 10) * 10;
     const max = Math.ceil(Math.max(100, ...valid.map((row) => row.score)) / 10) * 10;
-    const stroke = kind === "temperature" ? "#B9853B" : "#1D5660";
+    const stroke = kind === "temperature" ? "var(--chart-temperature)" : "var(--chart-radar)";
     const x = (index) => rows.length === 1 ? 300 : 8 + index / (rows.length - 1) * 584;
     const y = (score) => 190 - (score - min) / (max - min || 1) * 180;
     const segments = [];
