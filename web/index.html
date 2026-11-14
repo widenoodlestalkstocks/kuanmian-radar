@@ -6,8 +6,8 @@
     <meta name="theme-color" content="#0b2031">
     <meta name="description" content="寬麵說股：一起看懂大盤籌碼溫度、產業資金與歷史變化。">
     <title>寬麵說股｜大盤與資金雷達</title>
-    <link rel="stylesheet" href="./styles.css?v=20261114-9">
-    <script src="./app.js?v=20261114-9" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=20261114-10">
+    <script src="./app.js?v=20261114-10" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要內容</a>
@@ -26,14 +26,14 @@
 
         <p id="load-status" class="load-status" role="status" aria-live="polite">正在讀取最新資料…</p>
         <section class="overview-grid" aria-label="市場總覽">
-          <article class="overview-card temperature-card">
-            <div class="card-topline"><h2>大盤籌碼溫度</h2><span class="card-tag">大盤觀察</span></div>
+          <article id="temperature-card" class="overview-card temperature-card" data-signal="unavailable">
+            <div class="card-topline"><h2>大盤籌碼溫度</h2><span id="temperature-signal" class="card-tag" role="status" aria-live="polite">讀取中</span></div>
             <div class="score-line"><strong id="temperature-score">—</strong><span id="temperature-scale" class="score-unit">°C</span></div>
             <p id="temperature-state" class="card-state">資料讀取中</p>
             <p id="temperature-date" class="data-date">資料日：—</p>
           </article>
-          <article class="overview-card radar-card">
-            <div class="card-topline"><h2>資金雷達總分</h2><span class="card-tag">資金觀察</span></div>
+          <article id="radar-card" class="overview-card radar-card" data-signal="unavailable">
+            <div class="card-topline"><h2>資金雷達總分</h2><span id="radar-signal" class="card-tag" role="status" aria-live="polite">讀取中</span></div>
             <div class="score-line"><strong id="radar-score">—</strong><span id="radar-scale" class="score-unit">／100</span></div>
             <p id="radar-state" class="card-state">資料讀取中</p>
             <p id="radar-date" class="data-date">交易日：—</p>

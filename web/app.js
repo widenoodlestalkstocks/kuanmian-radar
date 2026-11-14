@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const state = { radar: null, temperature: null, errors: {}, busy: false };
+  const state = { radar: null, temperature: null, updateStatus: null, errors: {}, busy: false };
   const byId = (id) => document.getElementById(id);
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const text = (id, value) => { byId(id).textContent = value; };
@@ -28,6 +28,10 @@
   const temperatureDate = () => dateKey(latestTemperature()?.date) || dateKey(state.temperature?.asOf);
   const briefText = (value, fallback) => typeof value === "string" && value.trim() ? value : fallback;
   const marketState = () => briefText(latestTemperature()?.state ?? latestTemperature()?.structure?.title ?? state.temperature?.state, "市場觀察");
+  const overviewScore = (value) => {
+    const result = number(value);
+    return result !== null && result >= 0 && result <= 100 ? result : null;
+  };
   const daysOld = (value) => {
     const date = dateKey(value);
     const today = dateKey(new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()));
@@ -47,9 +51,35 @@
     return [...dates.values()].sort((a, b) => a.date.localeCompare(b.date));
   }
 
+  function overviewSignal(kind, score, observed) {
+    const unavailable = (label) => ({ tone: "unavailable", label });
+    if (score === null) return unavailable("資料不足");
+    const age = daysOld(observed);
+    if (!observed || age === null || age < 0 || age > 7) return unavailable("待更新");
+    if (state.errors[kind] || state.errors.updateStatus) return unavailable("更新未完成");
+    const component = state.updateStatus?.components?.[kind];
+    if (component?.status === "failed") return unavailable("更新未完成");
+    if (component?.status === "running") return unavailable("更新中");
+    if (component?.status !== "success" || dateKey(component.asOf) !== observed) return unavailable("資料待確認");
+    const signal = state[kind]?.signal;
+    const tones = kind === "temperature" ? ["hot", "cold", "warm", "cool", "neutral", "caution", "danger"] : ["strong", "positive", "neutral", "weak", "risk"];
+    if (!isObject(signal) || !tones.includes(signal.tone) || typeof signal.label !== "string" || !signal.label.trim() || signal.label.length > 12) return unavailable("資料待確認");
+    return { tone: signal.tone, label: signal.label };
+  }
+
+  function applyOverviewSignal(kind, signal) {
+    const card = byId(`${kind}-card`);
+    card.dataset.signal = signal.tone;
+    card.dataset.alert = String(["hot", "cold", "caution", "danger", "weak", "risk"].includes(signal.tone));
+    card.setAttribute("aria-label", `${kind === "temperature" ? "大盤籌碼溫度" : "資金雷達總分"}：${signal.label}`);
+    text(`${kind}-signal`, signal.label);
+  }
+
   function renderOverview() {
-    const latest = latestTemperature(), temperature = number(latest?.temperature);
-    const radar = state.radar?.status === "unavailable" ? null : number(state.radar?.score);
+    const latest = latestTemperature(), temperature = overviewScore(latest?.temperature);
+    const radar = state.radar?.status === "unavailable" ? null : overviewScore(state.radar?.score);
+    applyOverviewSignal("temperature", overviewSignal("temperature", temperature, temperatureDate()));
+    applyOverviewSignal("radar", overviewSignal("radar", radar, dateKey(state.radar?.asOf)));
     text("temperature-score", fmt(temperature));
     text("temperature-scale", temperature === null ? "" : "°C");
     text("temperature-state", temperature === null ? "目前無法提供溫度" : daysOld(temperatureDate()) > 7 ? "資料尚待更新" : marketState());
@@ -69,12 +99,14 @@
       const messages = [];
       const missing = key === "temperature" ? number(latestTemperature()?.temperature) === null : number(data?.score) === null;
       if (state.errors[key]) messages.push(data ? "暫時無法更新，目前保留上次讀取的結果。" : "資料暫時無法讀取，請稍後刷新。");
+      if (state.updateStatus?.components?.[key]?.status === "failed") messages.push("最近一次更新未完成，目前顯示上次成功資料。");
       if (data && (data.status === "unavailable" || missing)) messages.push("部分資料不足，目前無法提供完整結果。");
       else if (data?.status === "partial") messages.push("部分資料不足，請留意結果與資料日。");
       if (date && daysOld(date) > 7) messages.push(`資料尚未更新，最新資料日為 ${dateLabel(date)}。`);
       if (data && !date) messages.push("資料日期尚未齊全，請稍後再查看。");
       if (messages.length) notices.push(`<div class="notice"><strong>${esc(title)}｜資料提醒</strong>${[...new Set(messages)].map((message) => `<p>${esc(message)}</p>`).join("")}</div>`);
     });
+    if (state.errors.updateStatus) notices.push(`<div class="notice"><strong>更新狀態待確認</strong><p>暫時無法確認資料更新狀態，請稍後刷新。</p></div>`);
     byId("data-notices").innerHTML = notices.join("");
   }
 
@@ -185,8 +217,8 @@
     button.disabled = true;
     button.setAttribute("aria-busy", "true");
     text("load-status", "正在讀取最新資料…");
-    const keys = ["radar", "temperature"];
-    const results = await Promise.allSettled([fetchData("./data/radar.json"), fetchData("./data/temperature.json")]);
+    const keys = ["radar", "temperature", "updateStatus"];
+    const results = await Promise.allSettled([fetchData("./data/radar.json"), fetchData("./data/temperature.json"), fetchData("./data/update-status.json")]);
     results.forEach((result, index) => {
       if (result.status === "fulfilled") { state[keys[index]] = result.value; delete state.errors[keys[index]]; }
       else state.errors[keys[index]] = true;
