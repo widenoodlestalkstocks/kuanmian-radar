@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "score": 47.86,
+  "score": 48.45,
   "state": "中性",
   "asOf": "2026-11-13",
   "snapshotDate": "2026-11-14",
-  "generatedAt": "2026-11-14T13:57:37+08:00",
-  "scoreChange": 4.6,
+  "generatedAt": "2026-11-14T06:20:26.271797+00:00",
+  "scoreChange": 5.19,
   "industry": [
     {
       "name": "新藥",
@@ -85,7 +85,7 @@
     },
     {
       "date": "2026-11-14",
-      "score": 47.86
+      "score": 48.45
     }
   ]
 }

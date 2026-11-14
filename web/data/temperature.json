@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "asOf": "2026-11-13",
-  "generatedAt": "2026-11-14T05:14:08.668907+00:00",
+  "generatedAt": "2026-11-14T06:20:26.271797+00:00",
   "latest": {
     "date": "2026-11-13",
     "temperature": 40,
@@ -175,7 +175,7 @@
       "value": 149.754,
       "balance": 5031.41789,
       "balanceChange": 33.8141,
-      "status": "ok"
+      "status": "failed"
     }
   }
 }
