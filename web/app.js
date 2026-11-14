@@ -84,7 +84,7 @@
     const latest = valid.at(-1), unit = kind === "temperature" ? "°C" : "分";
     const min = Math.floor(Math.min(0, ...valid.map((row) => row.score)) / 10) * 10;
     const max = Math.ceil(Math.max(100, ...valid.map((row) => row.score)) / 10) * 10;
-    const stroke = kind === "temperature" ? "#efd293" : "#75d6df";
+    const stroke = kind === "temperature" ? "#B9853B" : "#1D5660";
     const x = (index) => rows.length === 1 ? 300 : 8 + index / (rows.length - 1) * 584;
     const y = (score) => 190 - (score - min) / (max - min || 1) * 180;
     const segments = [];
@@ -134,9 +134,6 @@
     }
     byId("chips-futures").innerHTML = `<dl class="chips-result-grid"><div><dt>${position}</dt><dd>${net === null ? "—" : `${esc(fmt(Math.abs(net), 0))}<span class="chips-result-unit">口</span>`}</dd></div><div><dt>淨部位較前日</dt><dd>${change === null ? "—" : `${change > 0 ? "+" : ""}${esc(fmt(change, 0))}<span class="chips-result-unit">口</span>`}</dd>${direction ? `<p class="chips-direction">（${direction}）</p>` : ""}</div></dl><p class="chips-result-date">資料日：${dateKey(futures.asOf) ? esc(dateLabel(futures.asOf)) : "尚未取得"}</p>${net === null ? `<p class="chips-missing">尚未取得外資台指期淨部位。</p>` : ""}`;
 
-    const margin = isObject(chips.marginMaintenanceExETF) ? chips.marginMaintenanceExETF : {};
-    const maintenance = number(margin.value), balance = number(margin.balance), balanceChange = number(margin.balanceChange);
-    byId("chips-maintenance").innerHTML = `<p class="chips-scope">上市・扣除 ETF</p><dl class="chips-result-grid"><div><dt>融資餘額</dt><dd>${balance === null ? "—" : `${esc(fmt(balance, 2))}<span class="chips-result-unit">億元</span>`}</dd></div><div><dt>餘額較前日</dt><dd>${balanceChange === null ? "—" : `${esc(signed(balanceChange, ""))}<span class="chips-result-unit">億元</span>`}</dd></div><div class="chips-maintenance-result"><dt>推估融資維持率</dt><dd class="chips-maintenance-value">${maintenance === null ? "—" : `${esc(fmt(maintenance, 2))}<span class="chips-result-unit">%</span>`}</dd></div></dl><p class="chips-account-note">非個人帳戶維持率。</p><p class="chips-result-date">資料日：${dateKey(margin.asOf) ? esc(dateLabel(margin.asOf)) : "尚未取得"}</p>${maintenance === null || balance === null ? `<p class="chips-missing">${maintenance === null && balance === null ? "尚未取得融資資料。" : maintenance === null ? "尚未取得維持率資料。" : "尚未取得融資餘額。"}</p>` : ""}${(margin.status === "failed" || daysOld(margin.asOf) > 7) && (maintenance !== null || balance !== null) ? `<p class="chips-missing">資料尚未更新，目前保留上次資料。</p>` : ""}${maintenance !== null || balance !== null ? `<p class="chips-data-source">來源：玩股網</p>` : ""}`;
   }
 
   function renderIndustry() {
