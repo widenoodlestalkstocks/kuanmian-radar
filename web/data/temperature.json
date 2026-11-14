@@ -130,5 +130,52 @@
       "date": "2026-09-30",
       "temperature": 62
     }
-  ]
+  ],
+  "chips": {
+    "asOf": "2026-11-13",
+    "institutional": [
+      {
+        "date": "2026-11-13",
+        "foreign": 288,
+        "trust": 95,
+        "dealer": 69
+      },
+      {
+        "date": "2026-11-12",
+        "foreign": -7,
+        "trust": 126,
+        "dealer": -66
+      },
+      {
+        "date": "2026-11-11",
+        "foreign": -8,
+        "trust": 186,
+        "dealer": 63
+      },
+      {
+        "date": "2026-11-10",
+        "foreign": -341,
+        "trust": 399,
+        "dealer": -175
+      },
+      {
+        "date": "2026-11-09",
+        "foreign": -901,
+        "trust": 313,
+        "dealer": -312
+      }
+    ],
+    "foreignFutures": {
+      "asOf": "2026-11-13",
+      "net": -100870.0,
+      "change": -1297.0
+    },
+    "marginMaintenanceExETF": {
+      "asOf": null,
+      "value": null,
+      "balance": null,
+      "balanceChange": null,
+      "status": "unavailable"
+    }
+  }
 }
