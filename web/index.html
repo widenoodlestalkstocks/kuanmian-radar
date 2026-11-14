@@ -14,8 +14,8 @@
         document.getElementById("theme-color").setAttribute("content", theme === "light" ? "#F5F1E9" : "#080A0B");
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=20261114-14">
-    <script src="./app.js?v=20261114-14" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=20261114-15">
+    <script src="./app.js?v=20261114-15" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要內容</a>
@@ -49,6 +49,13 @@
             <p id="radar-state" class="card-state">資料讀取中</p>
             <p id="radar-date" class="data-date">交易日：—</p>
           </article>
+        </section>
+
+        <section id="holding-reference-card" class="holding-reference-card" aria-labelledby="holding-reference-title" data-available="false">
+          <h2 id="holding-reference-title">模型參考持股水位</h2>
+          <strong id="holding-reference-value" class="holding-reference-value">—</strong>
+          <p id="holding-reference-status" class="holding-reference-status" role="status" aria-live="polite">讀取中</p>
+          <p id="holding-reference-date" class="holding-reference-date">資料日：—</p>
         </section>
 
         <div id="data-notices" class="data-notices" aria-live="polite"></div>

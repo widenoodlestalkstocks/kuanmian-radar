@@ -9,6 +9,10 @@
       "title": "散戶追高"
     }
   },
+  "holdingReference": {
+    "asOf": "2026-11-13",
+    "percent": 40
+  },
   "signal": {
     "tone": "caution",
     "label": "追高留意"

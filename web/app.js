@@ -122,6 +122,20 @@
     byId("data-notices").innerHTML = notices.join("");
   }
 
+  function renderHoldingReference() {
+    const reference = state.temperature?.holdingReference;
+    const sourceDate = temperatureDate();
+    const referenceDate = dateKey(reference?.asOf);
+    const health = overviewSignal("temperature", overviewScore(latestTemperature()?.temperature), sourceDate);
+    const available = isObject(reference) && Number.isInteger(reference.percent) && reference.percent >= 0 && reference.percent <= 100 &&
+      referenceDate !== null && referenceDate === sourceDate && health.tone !== "unavailable";
+    byId("holding-reference-card").dataset.available = String(available);
+    text("holding-reference-value", available ? `${fmt(reference.percent, 0)}%` : "—");
+    text("holding-reference-date", `資料日：${dateLabel(available ? referenceDate : sourceDate)}`);
+    text("holding-reference-status", health.tone === "unavailable" ? health.label : "暫無參考結果");
+    byId("holding-reference-status").hidden = available;
+  }
+
   function chartMarkup(input, label, kind = "temperature", limit = 60) {
     const rows = input.slice(-limit), valid = rows.filter((row) => row.score !== null);
     if (!valid.length) return `<p class="empty-state">目前沒有可用的${esc(label)}紀錄。</p>`;
@@ -204,6 +218,7 @@
 
   function render() {
     renderOverview();
+    renderHoldingReference();
     renderNotices();
     byId("temperature-chart").innerHTML = chartMarkup(records(state.temperature, "temperature"), "溫度趨勢");
     renderChips();
