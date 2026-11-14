@@ -199,11 +199,41 @@
       const left = number(a.score), right = number(b.score);
       return left === null ? (right === null ? 0 : 1) : right === null ? -1 : right - left;
     }).slice(0, 10);
-    text("industry-description", rows.length ? "只列資金分數前 10 個細產業。點開看產業變化。" : "目前沒有可用的產業排行。");
+    text("industry-description", rows.length ? "只列資金分數前 10 個細產業。點開看近5個交易日走勢。" : "目前沒有可用的產業排行。");
     byId("industry-list").innerHTML = rows.length ? rows.map((row, index) => {
       const id = `industry-detail-${index}`;
-      return `<article class="industry-item"><button class="industry-toggle" type="button" aria-expanded="false" aria-controls="${id}" data-disclosure="${id}"><span class="industry-rank">${index + 1}</span><span class="industry-name">${esc(briefText(row.name, "未命名產業"))}</span><span class="industry-score">${esc(fmt(row.score))}</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button><div class="industry-detail" id="${id}" hidden><dl class="detail-grid"><div><dt>產業資金分數</dt><dd>${esc(fmt(row.score))}${number(row.score) === null ? "" : " 分"}</dd></div><div><dt>前批分數差</dt><dd>${esc(signed(row.scoreChange, " 分"))}</dd></div><div><dt>平均產業日漲跌</dt><dd>${esc(signed(row.change, "%"))}</dd></div></dl><p class="detail-source">產業資料日：${esc(dateLabel(row.asOf ?? state.radar?.asOf))}</p></div></article>`;
+      return `<article class="industry-item"><button class="industry-toggle" type="button" aria-expanded="false" aria-controls="${id}" data-disclosure="${id}"><span class="industry-rank">${index + 1}</span><span class="industry-name">${esc(briefText(row.name, "未命名產業"))}</span><span class="industry-score">${esc(fmt(row.score))}</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button><div class="industry-detail" id="${id}" hidden>${industryTrendMarkup(row)}<dl class="detail-grid"><div><dt>產業資金分數</dt><dd>${esc(fmt(row.score))}${number(row.score) === null ? "" : " 分"}</dd></div><div><dt>較前次紀錄</dt><dd>${esc(signed(row.scoreChange, " 分"))}</dd></div><div><dt>平均產業日漲跌</dt><dd>${esc(signed(row.change, "%"))}</dd></div></dl><p class="detail-source">產業資料日：${esc(dateLabel(row.asOf ?? state.radar?.asOf))}</p></div></article>`;
     }).join("") : `<p class="empty-state">資料暫時無法提供，請稍後再查看。</p>`;
+  }
+
+  function industryTrendMarkup(industry) {
+    const observed = dateKey(industry.asOf ?? state.radar?.asOf), dates = new Map();
+    (Array.isArray(industry.history) ? industry.history : []).forEach((row) => {
+      if (!isObject(row)) return;
+      const date = dateKey(row.date);
+      if (date && observed && date <= observed) dates.set(date, { date, score: overviewScore(row.score) });
+    });
+    // A current, dated result remains a real observation while history builds.
+    if (!dates.size && observed && overviewScore(industry.score) !== null) dates.set(observed, { date: observed, score: overviewScore(industry.score) });
+    const rows = [...dates.values()].sort((a, b) => a.date.localeCompare(b.date)).slice(-5);
+    const valid = rows.filter((row) => row.score !== null);
+    const title = `<h3>近5個交易日資金分數</h3>`;
+    if (!valid.length) return `<section class="industry-trend">${title}<p class="industry-trend-empty">資料正在累積，更新後會顯示走勢。</p></section>`;
+    const x = (index) => (index + 0.5) / rows.length * 100;
+    const y = (score) => 100 - score;
+    const segments = [];
+    let segment = [];
+    rows.forEach((row, index) => {
+      if (row.score === null) { if (segment.length) segments.push(segment); segment = []; }
+      else segment.push({ x: x(index), y: y(row.score) });
+    });
+    if (segment.length) segments.push(segment);
+    const lines = segments.filter((part) => part.length > 1).map((part) => `<polyline class="industry-trend-line" points="${part.map((point) => `${point.x.toFixed(3)},${point.y.toFixed(3)}`).join(" ")}" fill="none" vector-effect="non-scaling-stroke"/>`).join("");
+    const dots = segments.flatMap((part) => part.map((point) => `<span class="industry-trend-point" style="left:${point.x.toFixed(3)}%;top:${point.y.toFixed(3)}%" aria-hidden="true"></span>`)).join("");
+    const description = rows.map((row) => `${dateLabel(row.date)}：${row.score === null ? "缺資料" : `${fmt(row.score)}分`}`).join("，");
+    const count = valid.length < 5 ? `已累積${valid.length}筆資料` : "5筆交易日紀錄";
+    const values = rows.map((row) => `<div><dt><time datetime="${row.date}">${esc(shortDate(row.date))}</time></dt><dd>${esc(fmt(row.score))}<span class="sr-only">${row.score === null ? "缺資料" : "分"}</span></dd></div>`).join("");
+    return `<section class="industry-trend">${title}<p class="industry-trend-meta"><span>${count}</span><span>0–100分</span></p><div class="industry-trend-plot"><div class="industry-trend-drawing"><svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="${esc(`資金分數走勢，${description}`)}"><g class="industry-trend-grid" aria-hidden="true">${[0, 50, 100].map((value) => `<line x1="0" y1="${value}" x2="100" y2="${value}" vector-effect="non-scaling-stroke"/>`).join("")}</g>${lines}</svg>${dots}</div></div><dl class="industry-trend-values" style="--trend-days:${rows.length}" aria-label="每日資金分數">${values}</dl><p class="industry-trend-caption">依已保存的交易日紀錄顯示。${valid.length < 5 ? "後續會逐日累積。" : ""}</p>${rows.some((row) => row.score === null) ? `<p class="industry-trend-gap">缺資料的日期以「—」標示。</p>` : ""}</section>`;
   }
 
   function renderHistory() {
