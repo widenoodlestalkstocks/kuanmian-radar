@@ -9,6 +9,10 @@
       "title": "散戶追高"
     }
   },
+  "signal": {
+    "tone": "caution",
+    "label": "追高留意"
+  },
   "history": [
     {
       "date": "2026-11-13",

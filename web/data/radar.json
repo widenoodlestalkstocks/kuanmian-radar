@@ -2,6 +2,10 @@
   "schemaVersion": 1,
   "score": 48.45,
   "state": "中性",
+  "signal": {
+    "tone": "neutral",
+    "label": "多空中性"
+  },
   "asOf": "2026-11-13",
   "snapshotDate": "2026-11-14",
   "generatedAt": "2026-11-14T06:20:26.271797+00:00",
