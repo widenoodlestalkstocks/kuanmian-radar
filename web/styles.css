@@ -164,9 +164,9 @@ h3{font-size:23px}
 .overview-card[data-signal]{--signal-fill:#EEEFEF;--signal-ink:#555D62;--signal-border:#8A9195;background:var(--signal-fill);border:2px solid var(--signal-border);border-top-width:4px;border-left-width:7px;box-shadow:0 6px 20px rgba(23,57,74,.05)}
 .overview-card[data-signal="strong"]{--signal-fill:#E6F0F6;--signal-ink:#174C65;--signal-border:#245F79}
 .overview-card[data-signal="positive"]{--signal-fill:#E8F3EE;--signal-ink:#1D5660;--signal-border:#2F6C6E}
-.overview-card[data-signal="neutral"]{--signal-fill:#FFF5D9;--signal-ink:#765219;--signal-border:#A87C29}
-.overview-card[data-signal="weak"],.overview-card[data-signal="caution"],.overview-card[data-signal="warm"]{--signal-fill:#FFF0D9;--signal-ink:#88521B;--signal-border:#B36A22}
-.overview-card[data-signal="risk"],.overview-card[data-signal="danger"],.overview-card[data-signal="hot"]{--signal-fill:#FDEAE5;--signal-ink:#A3322A;--signal-border:#B03F35}
+.overview-card[data-signal="neutral"]{--signal-fill:#FFF8E7;--signal-ink:#765219;--signal-border:#A87C29}
+.overview-card[data-signal="weak"],.overview-card[data-signal="caution"],.overview-card[data-signal="warm"]{--signal-fill:#FFE1B4;--signal-ink:#884511;--signal-border:#B0631B}
+.overview-card[data-signal="risk"],.overview-card[data-signal="danger"],.overview-card[data-signal="hot"]{--signal-fill:#FADBD7;--signal-ink:#A3322A;--signal-border:#B03F35}
 .overview-card[data-signal="cool"]{--signal-fill:#EAF5F7;--signal-ink:#28606A;--signal-border:#3B7A84}
 .overview-card[data-signal="cold"]{--signal-fill:#E5EFFA;--signal-ink:#244F7B;--signal-border:#396B9A}
 .overview-card[data-signal] .score-line strong,.overview-card[data-signal] .card-state{color:var(--signal-ink)}
