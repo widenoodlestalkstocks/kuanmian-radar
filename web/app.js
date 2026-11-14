@@ -107,6 +107,38 @@
     return result === null ? "—" : `${result > 0 ? "+" : ""}${fmt(result, 2)}${suffix}`;
   }
 
+  function renderChips() {
+    const chips = isObject(state.temperature?.chips) ? state.temperature.chips : {};
+    const dates = new Map();
+    (Array.isArray(chips.institutional) ? chips.institutional : []).forEach((row) => {
+      if (!isObject(row)) return;
+      const date = dateKey(row.date);
+      if (date) dates.set(date, { date, foreign: number(row.foreign), trust: number(row.trust), dealer: number(row.dealer) });
+    });
+    const days = [...dates.values()].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+    byId("chips-institutional").innerHTML = days.length ? `<p class="chips-intro">買賣超・單位：億元${days.length < 5 ? `・目前有 ${days.length} 個交易日資料` : ""}</p><div class="chips-day-list">${days.map((row) => `<article class="chips-day"><h3><time datetime="${row.date}">${esc(dateLabel(row.date))}</time></h3><dl class="chips-institution-values"><div><dt>外資</dt><dd>${esc(signed(row.foreign, ""))}</dd></div><div><dt>投信</dt><dd>${esc(signed(row.trust, ""))}</dd></div><div><dt>自營商</dt><dd>${esc(signed(row.dealer, ""))}</dd></div></dl></article>`).join("")}</div>` : `<p class="empty-state">尚未取得近5交易日的法人買賣超資料。</p>`;
+
+    const futures = isObject(chips.foreignFutures) ? chips.foreignFutures : {};
+    const net = number(futures.net), change = number(futures.change);
+    const position = net === null ? "淨部位" : net < 0 ? "淨空單" : net > 0 ? "淨多單" : "淨部位";
+    text("chips-futures-title", net === null ? "外資台指期淨空單" : `外資台指期${position}`);
+    let direction = "";
+    if (net !== null && change !== null) {
+      const previous = net - change;
+      if (change === 0) direction = "持平";
+      else if (net < 0 && previous > 0) direction = "由淨多轉淨空";
+      else if (net > 0 && previous < 0) direction = "由淨空轉淨多";
+      else if (net === 0) direction = "轉為多空平衡";
+      else if (previous === 0) direction = net < 0 ? "轉為淨空" : "轉為淨多";
+      else direction = net < 0 ? change < 0 ? "淨空增加" : "淨空減少" : change > 0 ? "淨多增加" : "淨多減少";
+    }
+    byId("chips-futures").innerHTML = `<dl class="chips-result-grid"><div><dt>${position}</dt><dd>${net === null ? "—" : `${esc(fmt(Math.abs(net), 0))}<span class="chips-result-unit">口</span>`}</dd></div><div><dt>淨部位較前日</dt><dd>${change === null ? "—" : `${change > 0 ? "+" : ""}${esc(fmt(change, 0))}<span class="chips-result-unit">口</span>`}</dd>${direction ? `<p class="chips-direction">（${direction}）</p>` : ""}</div></dl><p class="chips-result-date">資料日：${dateKey(futures.asOf) ? esc(dateLabel(futures.asOf)) : "尚未取得"}</p>${net === null ? `<p class="chips-missing">尚未取得外資台指期淨部位。</p>` : ""}`;
+
+    const margin = isObject(chips.marginMaintenanceExETF) ? chips.marginMaintenanceExETF : {};
+    const maintenance = number(margin.value), balance = number(margin.balance), balanceChange = number(margin.balanceChange);
+    byId("chips-maintenance").innerHTML = `<p class="chips-scope">上市・扣除 ETF</p><dl class="chips-result-grid"><div><dt>融資餘額</dt><dd>${balance === null ? "—" : `${esc(fmt(balance, 2))}<span class="chips-result-unit">億元</span>`}</dd></div><div><dt>餘額較前日</dt><dd>${balanceChange === null ? "—" : `${esc(signed(balanceChange, ""))}<span class="chips-result-unit">億元</span>`}</dd></div><div class="chips-maintenance-result"><dt>推估融資維持率</dt><dd class="chips-maintenance-value">${maintenance === null ? "—" : `${esc(fmt(maintenance, 2))}<span class="chips-result-unit">%</span>`}</dd></div></dl><p class="chips-account-note">非個人帳戶維持率。</p><p class="chips-result-date">資料日：${dateKey(margin.asOf) ? esc(dateLabel(margin.asOf)) : "尚未取得"}</p>${maintenance === null || balance === null ? `<p class="chips-missing">${maintenance === null && balance === null ? "尚未取得融資資料。" : maintenance === null ? "尚未取得維持率資料。" : "尚未取得融資餘額。"}</p>` : ""}${(margin.status === "failed" || daysOld(margin.asOf) > 7) && (maintenance !== null || balance !== null) ? `<p class="chips-missing">資料尚未更新，目前保留上次資料。</p>` : ""}${maintenance !== null || balance !== null ? `<p class="chips-data-source">來源：玩股網</p>` : ""}`;
+  }
+
   function renderIndustry() {
     const rows = (Array.isArray(state.radar?.industry) ? state.radar.industry : []).filter(isObject).sort((a, b) => {
       const left = number(a.score), right = number(b.score);
@@ -133,6 +165,7 @@
     renderOverview();
     renderNotices();
     byId("temperature-chart").innerHTML = chartMarkup(records(state.temperature, "temperature"), "溫度趨勢");
+    renderChips();
     renderIndustry();
     renderHistory();
   }

@@ -54,6 +54,23 @@
           <div class="section-heading"><div><p class="eyebrow">大盤觀察</p><h2>溫度怎麼走？</h2></div><p id="market-chart-date" class="section-date">資料日：—</p></div>
           <div id="temperature-chart" class="chart-card"><p class="empty-state">正在讀取溫度趨勢…</p></div>
           <article id="structure-card" class="structure-card"><p class="empty-state">正在讀取市場狀態…</p></article>
+          <section class="chips-section" aria-labelledby="chips-title">
+            <div class="section-heading"><div><p class="eyebrow">點開看近期變化</p><h2 id="chips-title">籌碼近況</h2></div></div>
+            <div class="chips-disclosures">
+              <article class="chips-disclosure">
+                <button class="chips-toggle" type="button" aria-expanded="false" aria-controls="chips-institutional" data-disclosure="chips-institutional"><span>法人近5交易日</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button>
+                <div id="chips-institutional" class="chips-content" hidden><p class="empty-state">尚未取得資料。</p></div>
+              </article>
+              <article class="chips-disclosure">
+                <button class="chips-toggle" type="button" aria-expanded="false" aria-controls="chips-futures" data-disclosure="chips-futures"><span id="chips-futures-title">外資台指期淨空單</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button>
+                <div id="chips-futures" class="chips-content" hidden><p class="empty-state">尚未取得資料。</p></div>
+              </article>
+              <article class="chips-disclosure">
+                <button class="chips-toggle" type="button" aria-expanded="false" aria-controls="chips-maintenance" data-disclosure="chips-maintenance"><span>融資餘額與維持率</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button>
+                <div id="chips-maintenance" class="chips-content" hidden><p class="empty-state">尚未取得資料。</p></div>
+              </article>
+            </div>
+          </section>
         </section>
 
         <section id="panel-industry" class="view-panel" role="tabpanel" aria-labelledby="tab-industry" tabindex="0" hidden>
