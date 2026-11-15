@@ -510,5 +510,86 @@
   if (typeof window !== "undefined") window.addEventListener("resize", scheduleRadarClearance);
   document.fonts?.ready?.then(scheduleRadarClearance);
   document.fonts?.addEventListener?.("loadingdone", scheduleRadarClearance);
+
+  // Browser-only visitor counts; independent of market data and view changes.
+  function startVisitorCounts() {
+    const canonical = "https://widenoodlestalkstocks.github.io/kuanmian-radar/";
+    const sourceLocation = typeof location === "undefined" ? null : location;
+    const production = sourceLocation?.protocol === "https:" && sourceLocation.hostname === "widenoodlestalkstocks.github.io" && sourceLocation.pathname === "/kuanmian-radar/";
+    if (!production) { text("visitor-status", "瀏覽統計僅於正式網站顯示"); return; }
+    const encoded = encodeURIComponent(canonical);
+    const historyUrl = `https://hitscounter.dev/api/history?url=${encoded}`;
+    const hitUrl = `https://hitscounter.dev/api/hit?url=${encoded}&tz=Asia%2FTaipei&output=json`;
+    let counted = false, busy = false, requestedDay = null, midnightTimer = null;
+    const taipeiDay = () => {
+      const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+      const part = (type) => parts.find((item) => item.type === type).value;
+      return `${part("year")}-${part("month")}-${part("day")}`;
+    };
+    const validCount = (value) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+    const visible = () => document.visibilityState !== "hidden";
+    const unknown = () => { text("visitor-total", "—"); text("visitor-today", "—"); };
+    async function counterJson(url) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      try {
+        const response = await fetch(url, { credentials: "omit", referrerPolicy: "no-referrer", cache: "no-store", signal: controller.signal });
+        if (!response.ok) throw new Error("Counter unavailable");
+        const value = await response.json();
+        if (!isObject(value)) throw new Error("Invalid counter data");
+        return value;
+      } finally { clearTimeout(timeout); }
+    }
+    function scheduleMidnight() {
+      if (midnightTimer !== null) clearTimeout(midnightTimer);
+      const next = Date.parse(`${taipeiDay()}T00:00:00+08:00`) + 86400000 + 50;
+      midnightTimer = setTimeout(() => { midnightTimer = null; onVisible(); }, Math.max(50, next - Date.now()));
+    }
+    async function updateCounts(increment) {
+      if (busy) return;
+      busy = true;
+      requestedDay = taipeiDay();
+      unknown();
+      text("visitor-status", "統計讀取中…");
+      try {
+        if (increment) {
+          const hit = await counterJson(hitUrl);
+          if (!validCount(hit.total_hits) || !validCount(hit.today_hits) || hit.total_hits < hit.today_hits) throw new Error("Invalid hit counts");
+        }
+        const data = await counterJson(historyUrl);
+        if (!validCount(data.total_hits) || !Array.isArray(data.history)) throw new Error("Invalid counter history");
+        let today = 0;
+        data.history.forEach((row) => {
+          const day = isObject(row) ? dateKey(row.hit_date) : null;
+          if (!day || !validCount(row.hit_count)) throw new Error("Invalid daily count");
+          if (day === requestedDay) today += row.hit_count;
+        });
+        if (!validCount(today) || data.total_hits < today) throw new Error("Inconsistent counts");
+        if (requestedDay === taipeiDay()) {
+          text("visitor-total", data.total_hits.toLocaleString("zh-TW"));
+          text("visitor-today", today.toLocaleString("zh-TW"));
+          text("visitor-status", `今日日期：${requestedDay.replace(/-/g, "/")}`);
+        }
+      } catch {
+        unknown();
+        text("visitor-status", "統計暫時無法讀取");
+      } finally {
+        busy = false;
+        scheduleMidnight();
+        if (visible() && requestedDay !== taipeiDay()) onVisible();
+      }
+    }
+    function onVisible() {
+      if (!visible() || busy) return;
+      if (!counted) {
+        // Set before sending: a timed-out hit may already have been recorded.
+        counted = true;
+        void updateCounts(true);
+      } else if (requestedDay !== taipeiDay()) void updateCounts(false);
+    }
+    document.addEventListener("visibilitychange", onVisible);
+    onVisible();
+  }
   load();
+  startVisitorCounts();
 })();

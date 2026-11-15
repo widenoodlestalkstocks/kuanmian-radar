@@ -14,8 +14,8 @@
         document.getElementById("theme-color").setAttribute("content", theme === "light" ? "#F5F1E9" : "#080A0B");
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=20261115-21">
-    <script src="./app.js?v=20261115-21" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=20261115-22">
+    <script src="./app.js?v=20261115-22" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要內容</a>
@@ -134,11 +134,21 @@
             <div id="radar-history-records"></div>
           </section>
         </section>
+        <section class="visitor-section" aria-labelledby="visitor-title">
+          <h2 id="visitor-title">寬粉一起看市場</h2>
+          <dl class="visitor-grid" aria-live="polite" aria-atomic="true">
+            <div class="visitor-card"><dt>累計瀏覽量</dt><dd id="visitor-total">—</dd></div>
+            <div class="visitor-card"><dt>今日瀏覽量</dt><dd id="visitor-today">—</dd></div>
+          </dl>
+          <p id="visitor-status" class="visitor-status" role="status">統計讀取中…</p>
+          <p class="visitor-caption">今日依台北時間換日，瀏覽次數不等於使用人數。</p>
+          <p class="visitor-source">2026/11/15 起算 · 統計服務 <a href="https://hitscounter.dev/" target="_blank" rel="noopener noreferrer">HitsCounter ↗</a></p>
+        </section>
         <details class="release-notes">
           <summary>網站更新紀錄 <span>2026/11/15</span></summary>
           <div class="release-content">
             <p class="release-caption">功能維護與市場資料日期分開記錄。</p>
-            <article><time datetime="2026-11-15">11/15</time><p>入口提前、最新變化摘要、產業名次變動與雷達比較上線；首頁換上黑袍持刀浪客。</p></article>
+            <article><time datetime="2026-11-15">11/15</time><p>入口提前、最新變化摘要、產業名次變動與雷達比較上線；新增累計與今日瀏覽量，首頁換上黑袍持刀浪客。</p></article>
             <article><time datetime="2026-11-14">11/14</time><p>加入產業近5筆走勢、分數升降標示，恢復模型參考持股水位，並調整手機閱讀間距。</p></article>
           </div>
         </details>

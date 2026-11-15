@@ -286,6 +286,15 @@ h3{font-size:23px}
 .radar-comparison-caption,.radar-empty{font-size:18px;line-height:1.6;color:var(--muted);margin-top:17px;overflow-wrap:anywhere}
 .radar-empty{padding:18px 0}
 .release-notes{margin-top:30px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.visitor-section{margin-top:32px;padding-top:26px;border-top:1px solid var(--line)}
+.visitor-section h2{font-size:24px;color:var(--gold-text)}
+.visitor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:17px 0 0}
+.visitor-card{min-width:0;padding:19px 21px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel)}
+.visitor-card dt{font-size:18px;color:var(--muted)}
+.visitor-card dd{margin:9px 0 0;font-size:clamp(30px,4.8vw,42px);line-height:1.25;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gold-text);overflow-wrap:anywhere}
+.visitor-status,.visitor-caption,.visitor-source{margin-top:12px;font-size:18px;line-height:1.6;color:var(--muted);overflow-wrap:anywhere}
+.visitor-source{margin-top:5px}.visitor-source a{display:inline-flex;align-items:center;min-height:48px;color:var(--gold-text)}
+@media(max-width:360px){.visitor-grid{gap:10px}.visitor-card{padding:16px 12px}.visitor-section h2{font-size:23px}}
 .release-notes summary{min-height:58px;padding:15px 2px;font-size:19px;color:var(--gold-text);cursor:pointer}
 .release-notes summary span{display:inline-block;margin-left:12px;font-size:18px;color:var(--muted)}
 .release-content{padding:0 2px 17px}
