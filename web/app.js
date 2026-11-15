@@ -1,7 +1,8 @@
 "use strict";
 
 (() => {
-  const state = { radar: null, temperature: null, updateStatus: null, errors: {}, busy: false, industryMode: "ranking", radarSelection: null };
+  const APP_VERSION = "20261116-24";
+  const state = { radar: null, temperature: null, updateStatus: null, errors: {}, busy: false, view: "market", industryMode: "ranking", radarSelection: null, expandedIndustries: new Set(), globalFilter: "focus" };
   const byId = (id) => document.getElementById(id);
   let radarPlot = null, radarPlotObserver = null, radarLayoutFrame = null;
   function scheduleRadarClearance() {
@@ -47,6 +48,20 @@
   }
   setTheme(document.documentElement.dataset.theme);
   byId("theme-toggle").addEventListener("click", () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark", true));
+  function setTextSize(value, persist = false) {
+    const size = value === "large" ? "large" : "standard";
+    document.documentElement.dataset.textSize = size;
+    const button = byId("font-size-toggle");
+    if (button) {
+      button.setAttribute("aria-pressed", String(size === "large"));
+      button.setAttribute("aria-label", size === "large" ? "目前大字，切換為標準字" : "目前標準字，切換為大字");
+      button.textContent = size === "large" ? "標準字" : "放大字";
+    }
+    if (persist) { try { localStorage.setItem("kuanmian-text-size", size); } catch {} }
+    scheduleRadarClearance();
+  }
+  setTextSize(document.documentElement.dataset.textSize);
+  byId("font-size-toggle")?.addEventListener("click", () => setTextSize(document.documentElement.dataset.textSize === "large" ? "standard" : "large", true));
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const text = (id, value) => { byId(id).textContent = value; };
   const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -81,6 +96,134 @@
     const today = dateKey(new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()));
     return date && today ? Math.floor((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${date}T00:00:00Z`)) / 86400000) : null;
   };
+  const compiledLabel = (value) => {
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return "未提供";
+    const instant = new Date(value);
+    return Number.isFinite(instant.getTime()) ? new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(instant) : "未提供";
+  };
+
+  const fixedDisclosures = ["global-market-content", "chips-institutional", "chips-futures"];
+  const nativeDetailIds = ["radar-picker", "temperature-history-details", "radar-history-details"];
+  const handoffKey = "kuanmian-ui-handoff";
+  let interactionSerial = 0, initialHandoff = null;
+  if (typeof window !== "undefined") {
+    ["wheel", "touchstart", "pointerdown", "keydown", "scroll"].forEach((event) => window.addEventListener(event, () => { interactionSerial++; }, { passive: true }));
+  }
+  function validPublicName(value) {
+    return typeof value === "string" && value.length > 0 && value.length <= 60 && !/[\r\n\t\u0000-\u001f]/.test(value);
+  }
+  function captureReadingState() {
+    const disclosures = {}, nativeDetails = {};
+    fixedDisclosures.forEach((id) => { disclosures[id] = byId(id)?.hidden === false; });
+    nativeDetailIds.forEach((id) => { nativeDetails[id] = byId(id)?.open === true; });
+    return { view: state.view, industryMode: state.industryMode, expandedIndustries: [...state.expandedIndustries].filter(validPublicName).slice(0, 10), radarSelection: Array.isArray(state.radarSelection) ? state.radarSelection.filter(validPublicName).slice(0, 5) : null, globalFilter: state.globalFilter, disclosures, nativeDetails, scrollY: typeof window === "undefined" ? 0 : Math.max(0, Math.min(1000000, Math.round(window.scrollY || 0))) };
+  }
+  function syncDisclosure(id, expanded) {
+    const panel = byId(id);
+    if (!panel) return;
+    panel.hidden = !expanded;
+    document.querySelectorAll("[data-disclosure]").forEach((button) => {
+      if (button.dataset.disclosure !== id) return;
+      button.setAttribute("aria-expanded", String(expanded));
+      const symbol = button.querySelector?.(".disclosure-symbol");
+      if (symbol) symbol.textContent = expanded ? "−" : "＋";
+    });
+  }
+  function restorePanels(reading) {
+    fixedDisclosures.forEach((id) => syncDisclosure(id, reading.disclosures?.[id] === true));
+    nativeDetailIds.forEach((id) => { const detail = byId(id); if (detail) detail.open = reading.nativeDetails?.[id] === true; });
+  }
+  function validateHandoff(value, now = Date.now()) {
+    if (!isObject(value) || value.schema !== 1 || typeof value.createdAt !== "number" || !Number.isFinite(value.createdAt) || value.createdAt > now || now - value.createdAt > 600000 || !isObject(value.reading)) return null;
+    const row = value.reading;
+    if (!["market", "industry", "history"].includes(row.view) || !["ranking", "change", "radar"].includes(row.industryMode) || !["focus", "us", "asia", "fx", "all"].includes(row.globalFilter) || !Array.isArray(row.expandedIndustries) || row.expandedIndustries.length > 10 || row.expandedIndustries.some((name) => !validPublicName(name)) || (row.radarSelection !== null && (!Array.isArray(row.radarSelection) || row.radarSelection.length > 5 || row.radarSelection.some((name) => !validPublicName(name)))) || typeof row.scrollY !== "number" || !Number.isFinite(row.scrollY) || row.scrollY < 0 || row.scrollY > 1000000 || !isObject(row.disclosures) || !isObject(row.nativeDetails)) return null;
+    if (Object.keys(row.disclosures).some((id) => !fixedDisclosures.includes(id)) || Object.keys(row.nativeDetails).some((id) => !nativeDetailIds.includes(id)) || [...Object.values(row.disclosures), ...Object.values(row.nativeDetails)].some((open) => typeof open !== "boolean")) return null;
+    return { view: row.view, industryMode: row.industryMode, globalFilter: row.globalFilter, expandedIndustries: [...new Set(row.expandedIndustries)], radarSelection: row.radarSelection === null ? null : [...new Set(row.radarSelection)], scrollY: Math.round(row.scrollY), disclosures: Object.fromEntries(fixedDisclosures.map((id) => [id, row.disclosures[id] === true])), nativeDetails: Object.fromEntries(nativeDetailIds.map((id) => [id, row.nativeDetails[id] === true])) };
+  }
+  function readHandoff() {
+    try {
+      const value = sessionStorage.getItem(handoffKey);
+      sessionStorage.removeItem(handoffKey);
+      return typeof value === "string" && value.length <= 8192 ? validateHandoff(JSON.parse(value)) : null;
+    } catch { return null; }
+  }
+  function saveHandoff() {
+    try { sessionStorage.setItem(handoffKey, JSON.stringify({ schema: 1, createdAt: Date.now(), reading: captureReadingState() })); } catch {}
+  }
+  function focusDescriptor() {
+    const active = document.activeElement;
+    if (!active) return null;
+    if (validPublicName(active.dataset?.industryName)) return { industry: active.dataset.industryName };
+    if (active.dataset?.radarSelect !== undefined) {
+      const name = industryRows()[Number(active.dataset.radarSelect)]?.name;
+      if (validPublicName(name)) return { radar: name };
+    }
+    return typeof active.id === "string" && /^[a-z][a-z0-9-]{0,80}$/.test(active.id) ? { id: active.id } : null;
+  }
+  function restoreFocus(descriptor) {
+    if (!descriptor) return;
+    let target = descriptor.id ? byId(descriptor.id) : null;
+    if (descriptor.industry) target = [...document.querySelectorAll("[data-industry-name]")].find((button) => button.dataset.industryName === descriptor.industry);
+    if (descriptor.radar) target = [...document.querySelectorAll("[data-radar-select]")].find((button) => industryRows()[Number(button.dataset.radarSelect)]?.name === descriptor.radar);
+    if (target && !target.hidden && !target.disabled) target.focus?.({ preventScroll: true });
+  }
+  function restorePosition(reading, focus, serial) {
+    if (typeof window === "undefined" || interactionSerial !== serial) return;
+    const restore = () => {
+      if (interactionSerial !== serial) return;
+      restoreFocus(focus);
+      if (interactionSerial === serial) window.scrollTo?.({ top: reading.scrollY, behavior: "auto" });
+      scheduleRadarClearance();
+    };
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(restore);
+    else restore();
+  }
+
+  function versionParts(value) {
+    const match = typeof value === "string" ? value.match(/^(20\d{6})-(\d{1,4})$/) : null;
+    if (!match || !dateKey(`${match[1].slice(0, 4)}-${match[1].slice(4, 6)}-${match[1].slice(6, 8)}`)) return null;
+    return [Number(match[1]), Number(match[2])];
+  }
+  function newerVersion(candidate, current = APP_VERSION) {
+    const left = versionParts(candidate), right = versionParts(current);
+    return !!left && !!right && (left[0] > right[0] || (left[0] === right[0] && left[1] > right[1]));
+  }
+  function parseSiteVersion(html) {
+    if (typeof html !== "string" || html.length > 262144) return null;
+    const markup = html.replace(/<!--[\s\S]*?-->/g, "").replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "");
+    const found = [];
+    for (const match of markup.matchAll(/<meta\b[^>]*>/gi)) {
+      const attributes = {}, duplicates = new Set();
+      for (const attribute of match[0].matchAll(/\s([a-zA-Z][a-zA-Z0-9_-]*)\s*=\s*(["'])(.*?)\2/g)) {
+        const name = attribute[1].toLowerCase();
+        if (Object.hasOwn(attributes, name)) duplicates.add(name);
+        attributes[name] = attribute[3];
+      }
+      if (attributes.name === "kuanmian-ui-version") found.push(!duplicates.size && versionParts(attributes.content) ? attributes.content : null);
+    }
+    return found.length === 1 ? found[0] : null;
+  }
+  let versionBusy = false, versionCheckedAt = null, announcedVersion = null, dismissedVersion = null;
+  function productionPage() {
+    return typeof location !== "undefined" && location.protocol === "https:" && location.hostname === "widenoodlestalkstocks.github.io" && (!location.port || location.port === "443") && ["/kuanmian-radar/", "/kuanmian-radar/index.html"].includes(location.pathname);
+  }
+  async function checkSiteVersion(force = false) {
+    const now = Date.now();
+    if (!productionPage() || versionBusy || (!force && versionCheckedAt !== null && now - versionCheckedAt < 300000)) return;
+    versionBusy = true;
+    versionCheckedAt = now;
+    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch(`https://widenoodlestalkstocks.github.io/kuanmian-radar/index.html?ui-check=${now}`, { cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer", redirect: "error", signal: controller.signal });
+      if (!response.ok || response.redirected) return;
+      const candidate = parseSiteVersion(await response.text());
+      if (candidate && newerVersion(candidate)) {
+        announcedVersion = candidate;
+        const notice = byId("version-notice");
+        if (notice && candidate !== dismissedVersion) notice.hidden = false;
+      }
+    } catch {} finally { clearTimeout(timer); versionBusy = false; }
+  }
 
   function records(data, kind) {
     const dates = new Map();
@@ -134,6 +277,10 @@
     text("radar-date", `交易日：${dateLabel(state.radar?.asOf)}`);
     text("market-chart-date", `資料日：${dateLabel(temperatureDate())}`);
     text("industry-date", `資料日：${dateLabel(state.radar?.asOf)}`);
+    if (byId("overview-source-date")) {
+      const observed = dateKey(state.radar?.asOf), thermal = temperatureDate();
+      text("overview-source-date", observed && thermal && observed === thermal ? `市場資料日：${dateLabel(observed)}` : `資金資料：${dateLabel(observed)}　籌碼資料：${dateLabel(thermal)}`);
+    }
     byId("structure-card").innerHTML = temperature === null ? `<p class="empty-state">目前沒有可用的市場狀態。</p>` : `<p class="eyebrow">市場狀態</p><h3>${esc(marketState())}</h3>`;
   }
 
@@ -188,6 +335,10 @@
     });
     const available = rows.filter((row) => row.changePct !== null), stale = rows.filter((row) => row.stale);
     const scale = Math.max(1, Math.ceil(Math.max(0, ...available.map((row) => Math.abs(row.changePct)))));
+    const filters = { focus: ["wti", "gold", "vix"], us: ["sp500", "nasdaq", "sox"], asia: ["taiex", "tpex", "nikkei", "kospi", "hangseng", "csi300", "shanghai"], fx: ["dxy", "usdtwd"], all: order };
+    const filter = Object.hasOwn(filters, state.globalFilter) ? state.globalFilter : "focus";
+    const visibleRows = rows.filter((row) => filters[filter].includes(row.id));
+    document.querySelectorAll("[data-global-filter]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.globalFilter === filter)));
     let status = rows.length ? `已取得 ${available.length} 項行情` : "全球市場資料尚未取得，請稍後刷新。";
     if (rows.length && available.length < rows.length) status += `，${rows.length - available.length} 項暫缺。`;
     else if (rows.length) status += "。";
@@ -195,10 +346,11 @@
     if (state.errors.radar || state.updateStatus?.components?.radar?.status === "failed") status += " 本次更新未完成，目前保留已保存行情。";
     else if (state.errors.updateStatus || !["success", "running"].includes(state.updateStatus?.components?.radar?.status)) status += " 更新狀態待確認，請留意各項資料日。";
     else if (state.updateStatus?.components?.radar?.status === "running") status += " 行情更新中，目前顯示已保存資料。";
+    if (rows.length && filter !== "all") status += ` 本區顯示 ${visibleRows.length} 項。`;
     text("global-market-status", status);
     text("global-market-scale", available.length ? `長條中央為 0%，左右同一比例（±${fmt(scale, 0)}%）。紅漲綠跌，只表示價格變動。` : "缺資料以「—」標示，不視為持平。");
     byId("global-market-list").innerHTML = rows.length ? groups.map((group) => {
-      const items = rows.filter((row) => row.group === group);
+      const items = visibleRows.filter((row) => row.group === group);
       if (!items.length) return "";
       return `<section class="global-market-group"><h3>${esc(group)}</h3><div class="global-market-rows">${items.map((row) => {
         const direction = row.changePct === null ? "unavailable" : row.changePct > 0 ? "up" : row.changePct < 0 ? "down" : "flat";
@@ -232,12 +384,14 @@
       isObject(row) && kinds.includes(row.kind) && dateKey(row.asOf) === observed && observed &&
       typeof row.title === "string" && row.title.trim() && row.title.length <= 80 &&
       typeof row.detail === "string" && row.detail.trim() && row.detail.length <= 260).slice(0, 3);
-    text("highlights-date", `資料日：${dateLabel(observed)}`);
-    text("highlights-status", radarUpdateNote() || "從已保存的結果整理，每項變化都有數字可對照。");
+    byId("latest-highlights").dataset.empty = String(rows.length === 0);
+    byId("highlights-title").parentElement?.parentElement?.setAttribute("data-empty", String(rows.length === 0));
+    text("highlights-date", rows.length ? `資料日：${dateLabel(observed)}` : "");
+    text("highlights-status", radarUpdateNote() || (rows.length ? "從已保存的結果整理，每項變化都有數字可對照。" : "比較資料累積中，有前次紀錄後就會顯示變化。"));
     byId("highlight-list").innerHTML = rows.length ? rows.map((row, index) =>
       `<article class="highlight-row"><span class="highlight-index" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span><div><h3>${esc(row.title)}</h3><p>${esc(row.detail)}</p></div></article>`).join("") :
-      `<p class="brief-empty">比較資料正在累積，先看這批資料的分數與走勢。</p>`;
-    byId("brief-industry-button").hidden = !(Array.isArray(state.radar?.industry) && state.radar.industry.length);
+      "";
+    byId("brief-industry-button").hidden = !rows.length;
   }
 
   function chartMarkup(input, label, kind = "temperature", limit = 60) {
@@ -269,6 +423,17 @@
     return result === null ? "—" : `${result > 0 ? "+" : ""}${fmt(result, 2)}${suffix}`;
   }
 
+  function futuresMovement(net, change) {
+    if (typeof net !== "number" || typeof change !== "number" || !Number.isFinite(net) || !Number.isFinite(change) || !Number.isFinite(net - change)) return "暫無可比資料";
+    const previous = net - change, quantity = `${fmt(Math.abs(change), 0)}口`;
+    if (change === 0) return "與前日持平";
+    if (net < 0 && previous > 0) return "由淨多轉為淨空";
+    if (net > 0 && previous < 0) return "由淨空轉為淨多";
+    if (net === 0) return "轉為多空平衡";
+    if (previous === 0) return `轉為${net < 0 ? "淨空單" : "淨多單"}${fmt(Math.abs(net), 0)}口`;
+    return `${net < 0 ? "淨空單" : "淨多單"}${net < 0 ? change < 0 ? "增加" : "減少" : change > 0 ? "增加" : "減少"}${quantity}`;
+  }
+
   function renderChips() {
     const chips = isObject(state.temperature?.chips) ? state.temperature.chips : {};
     const dates = new Map();
@@ -278,23 +443,13 @@
       if (date) dates.set(date, { date, foreign: number(row.foreign), trust: number(row.trust), dealer: number(row.dealer) });
     });
     const days = [...dates.values()].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
-    byId("chips-institutional").innerHTML = days.length ? `<p class="chips-intro">買賣超・單位：億元${days.length < 5 ? `・目前有 ${days.length} 個交易日資料` : ""}</p><div class="chips-day-list">${days.map((row) => `<article class="chips-day"><h3><time datetime="${row.date}">${esc(dateLabel(row.date))}</time></h3><dl class="chips-institution-values"><div><dt>外資</dt><dd>${esc(signed(row.foreign, ""))}</dd></div><div><dt>投信</dt><dd>${esc(signed(row.trust, ""))}</dd></div><div><dt>自營商</dt><dd>${esc(signed(row.dealer, ""))}</dd></div></dl></article>`).join("")}</div>` : `<p class="empty-state">尚未取得近5交易日的法人買賣超資料。</p>`;
+    byId("chips-institutional").innerHTML = days.length ? `<p class="chips-intro">＋買超、－賣超，單位：億元${days.length < 5 ? `・目前有 ${days.length} 個交易日資料` : ""}</p><div class="chips-day-list">${days.map((row) => `<article class="chips-day"><h3><time datetime="${row.date}">${esc(dateLabel(row.date))}</time></h3><dl class="chips-institution-values"><div><dt>外資</dt><dd>${esc(signed(row.foreign, ""))}</dd></div><div><dt>投信</dt><dd>${esc(signed(row.trust, ""))}</dd></div><div><dt>自營商</dt><dd>${esc(signed(row.dealer, ""))}</dd></div></dl></article>`).join("")}</div>` : `<p class="empty-state">尚未取得近5交易日的法人買賣超資料。</p>`;
 
     const futures = isObject(chips.foreignFutures) ? chips.foreignFutures : {};
     const net = number(futures.net), change = number(futures.change);
     const position = net === null ? "淨部位" : net < 0 ? "淨空單" : net > 0 ? "淨多單" : "淨部位";
     text("chips-futures-title", net === null ? "外資台指期淨空單" : `外資台指期${position}`);
-    let direction = "";
-    if (net !== null && change !== null) {
-      const previous = net - change;
-      if (change === 0) direction = "持平";
-      else if (net < 0 && previous > 0) direction = "由淨多轉淨空";
-      else if (net > 0 && previous < 0) direction = "由淨空轉淨多";
-      else if (net === 0) direction = "轉為多空平衡";
-      else if (previous === 0) direction = net < 0 ? "轉為淨空" : "轉為淨多";
-      else direction = net < 0 ? change < 0 ? "淨空增加" : "淨空減少" : change > 0 ? "淨多增加" : "淨多減少";
-    }
-    byId("chips-futures").innerHTML = `<dl class="chips-result-grid"><div><dt>${position}</dt><dd>${net === null ? "—" : `${esc(fmt(Math.abs(net), 0))}<span class="chips-result-unit">口</span>`}</dd></div><div><dt>淨部位較前日</dt><dd>${change === null ? "—" : `${change > 0 ? "+" : ""}${esc(fmt(change, 0))}<span class="chips-result-unit">口</span>`}</dd>${direction ? `<p class="chips-direction">（${direction}）</p>` : ""}</div></dl><p class="chips-result-date">資料日：${dateKey(futures.asOf) ? esc(dateLabel(futures.asOf)) : "尚未取得"}</p>${net === null ? `<p class="chips-missing">尚未取得外資台指期淨部位。</p>` : ""}`;
+    byId("chips-futures").innerHTML = `<dl class="chips-result-grid"><div><dt>目前${position}</dt><dd>${net === null ? "—" : `${esc(fmt(Math.abs(net), 0))}<span class="chips-result-unit">口</span>`}</dd></div><div><dt>較前日變化</dt><dd class="chips-movement">${esc(futuresMovement(net, change))}</dd></div></dl><p class="chips-result-date">資料日：${dateKey(futures.asOf) ? esc(dateLabel(futures.asOf)) : "尚未取得"}</p>${net === null ? `<p class="chips-missing">尚未取得外資台指期淨部位。</p>` : ""}`;
 
   }
 
@@ -321,7 +476,7 @@
 
   function industryRankingMarkup(row) {
     const ranking = isObject(row.ranking) ? row.ranking : {};
-    let label = "暫無名次比較", status = "unavailable";
+    let label = "", status = "unavailable";
     if (ranking.status === "new") { label = "新進前10"; status = "new"; }
     else if (ranking.status === "continuing") {
       status = "continuing";
@@ -329,28 +484,32 @@
       const comparable = Number.isInteger(previous) && previous >= 1 && previous <= 10 && Number.isInteger(change) && previous - row.publicRank === change;
       label = comparable && change !== 0 ? `續留前10・${change > 0 ? "升" : "降"}${Math.abs(change)}名` : "續留前10";
     }
-    return `<span class="industry-ranking" data-ranking="${status}">${esc(label)}</span>`;
+    return label ? `<span class="industry-ranking" data-ranking="${status}">${esc(label)}</span>` : "";
   }
 
   function renderIndustry() {
     const rows = industryRows();
+    state.expandedIndustries = new Set([...state.expandedIndustries].filter((name) => rows.some((row) => row.name === name)));
     const ordered = state.industryMode === "change" ? [...rows].sort((a, b) => {
       const left = number(a.scoreChange), right = number(b.scoreChange);
       return left === null ? (right === null ? a.publicRank - b.publicRank : 1) : right === null ? -1 : right - left || a.publicRank - b.publicRank;
     }) : rows;
-    const modeText = state.industryMode === "change" ? "依分數升降排列；左側數字保留本期名次。點開看5筆走勢。" : "只列目前前10名。紅▲上升、綠▼下降，對照前一筆交易日紀錄。";
+    const modeText = state.industryMode === "change" ? "依資金分數升降排列；左側是本期名次。點開看已累積的走勢。" : "依資金分數排名。紅▲分數上升、綠▼分數下降，點開看變化。";
     text("industry-title", state.industryMode === "radar" ? "產業雷達比較" : state.industryMode === "change" ? "產業分數升降" : "細產業資金前 10");
     byId("industry-eyebrow").hidden = state.industryMode === "radar";
     text("industry-description", rows.length ? modeText : "目前沒有可用的產業排行。");
     byId("industry-description").hidden = state.industryMode === "radar";
-    text("industry-update-note", radarUpdateNote(true));
-    byId("industry-update-note").hidden = !radarUpdateNote(true);
+    const comparisonPending = rows.length && rows.every((row) => number(row.scoreChange) === null);
+    const updateNote = [radarUpdateNote(true), comparisonPending ? "比較資料累積中；有前次交易日紀錄後，會顯示分數升降與名次變化。" : ""].filter(Boolean).join(" ");
+    text("industry-update-note", updateNote);
+    byId("industry-update-note").hidden = !updateNote;
     ["ranking", "change", "radar"].forEach((mode) => byId(`industry-mode-${mode}`).setAttribute("aria-pressed", String(state.industryMode === mode)));
     byId("industry-list").hidden = state.industryMode === "radar";
     byId("industry-radar").hidden = state.industryMode !== "radar";
     byId("industry-list").innerHTML = ordered.length ? ordered.map((row) => {
       const id = `industry-detail-${row.publicRank - 1}`;
-      return `<article class="industry-item"><button class="industry-toggle" type="button" aria-expanded="false" aria-controls="${id}" data-disclosure="${id}"><span class="industry-rank">${row.publicRank}</span><span class="industry-heading"><span class="industry-name">${esc(briefText(row.name, "未命名產業"))}</span>${industryRankingMarkup(row)}</span><span class="industry-metrics"><span class="industry-score" aria-label="${esc(`資金分數 ${fmt(row.score)} 分`)}">${esc(fmt(row.score))}</span>${industryDeltaMarkup(row)}</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button><div class="industry-detail" id="${id}" hidden>${industryTrendMarkup(row)}<dl class="detail-grid"><div><dt>產業資金分數</dt><dd>${esc(fmt(row.score))}${number(row.score) === null ? "" : " 分"}</dd></div><div><dt>較前次紀錄</dt><dd>${esc(signed(row.scoreChange, " 分"))}</dd></div><div><dt>平均產業日漲跌</dt><dd>${esc(signed(row.change, "%"))}</dd></div></dl><p class="detail-source">產業資料日：${esc(dateLabel(row.asOf ?? state.radar?.asOf))}</p></div></article>`;
+      const expanded = state.expandedIndustries.has(row.name);
+      return `<article class="industry-item"><button class="industry-toggle" type="button" aria-expanded="${expanded}" aria-controls="${id}" data-disclosure="${id}" data-industry-name="${esc(row.name)}"><span class="industry-rank">${row.publicRank}</span><span class="industry-heading"><span class="industry-name">${esc(briefText(row.name, "未命名產業"))}</span>${industryRankingMarkup(row)}</span><span class="industry-metrics"><span class="industry-score" aria-label="${esc(`資金分數 ${fmt(row.score)} 分`)}">${esc(fmt(row.score))}<span class="industry-score-unit" aria-hidden="true">分</span></span>${industryDeltaMarkup(row)}</span><span class="disclosure-symbol" aria-hidden="true">${expanded ? "−" : "＋"}</span></button><div class="industry-detail" id="${id}"${expanded ? "" : " hidden"}>${industryTrendMarkup(row)}<dl class="detail-grid"><div><dt>產業資金分數</dt><dd>${esc(fmt(row.score))}${number(row.score) === null ? "" : " 分"}</dd></div><div><dt>資金分數較前次</dt><dd>${esc(signed(row.scoreChange, " 分"))}</dd></div><div><dt>產業平均日漲跌</dt><dd>${esc(signed(row.change, "%"))}</dd></div></dl><p class="detail-source">產業資料日：${esc(dateLabel(row.asOf ?? state.radar?.asOf))}</p></div></article>`;
     }).join("") : `<p class="empty-state">資料暫時無法提供，請稍後再查看。</p>`;
     renderIndustryRadar(rows);
   }
@@ -385,7 +544,8 @@
       const verified = current !== null && prior !== null && change !== null && Math.abs(Math.round((current - prior) * 100) / 100 - change) <= 1e-6;
       return { name: briefText(row.name, "未命名產業"), current, previous: verified ? prior : null };
     });
-    const rowsMarkup = values.map((row) => `<tr><th scope="row">${esc(row.name)}</th><td>${esc(fmt(row.current, 2))}</td><td>${esc(fmt(row.previous, 2))}</td></tr>`).join("");
+    const axisOrders = ["①", "②", "③", "④", "⑤"];
+    const rowsMarkup = values.map((row, index) => `<tr><th scope="row"><span class="radar-table-order" aria-hidden="true">${axisOrders[index]} </span>${esc(row.name)}</th><td>${esc(fmt(row.current, 2))}</td><td>${esc(fmt(row.previous, 2))}</td></tr>`).join("");
     const legend = `<div class="radar-legend"><span><i class="radar-key-latest" aria-hidden="true"></i>最新 ${esc(shortDate(latest))}</span><span><i class="radar-key-previous" aria-hidden="true"></i>前次 ${esc(shortDate(previous))}</span><span>固定0–100分</span></div>`;
     let drawing = `<p class="radar-empty">${selected.length ? `再選 ${Math.max(0, 3 - selected.length)} 個產業，就能畫出比較圖。` : "先點選3–5個產業，開始比較。"}</p>`;
     if (selected.length >= 3 && latest) {
@@ -409,12 +569,12 @@
       };
       const labels = values.map((row, index) => {
         const p = point(index, 44), safeWidth = Math.max(10, 2 * Math.min(p.x, 100 - p.x) - 1);
-        return `<span class="radar-axis-label" style="left:${p.x.toFixed(3)}%;top:${p.y.toFixed(3)}%;max-width:min(88px,calc(${safeWidth.toFixed(3)}% + 16px));transform:translate(-50%,${p.y > 65 ? "0" : "-50%"})">${esc(row.name)}</span>`;
+        return `<span class="radar-axis-label" style="left:${p.x.toFixed(3)}%;top:${p.y.toFixed(3)}%;max-width:min(88px,calc(${safeWidth.toFixed(3)}% + 16px));transform:translate(-50%,${p.y > 65 ? "0" : "-50%"})"><span class="radar-axis-name">${esc(row.name)}</span><span class="radar-axis-order" aria-hidden="true">${axisOrders[index]}</span></span>`;
       }).join("");
       const description = values.map((row) => `${row.name}最新${fmt(row.current, 2)}分，前次${fmt(row.previous, 2)}分`).join("；");
       drawing = `<div class="radar-plot"><svg viewBox="0 0 100 100" role="img" aria-label="${esc(`產業分數比較，最新${dateLabel(latest)}，前次${dateLabel(previous)}。${description}`)}"><g class="radar-grid" aria-hidden="true">${grid}</g>${series("previous")}${series("current")}</svg>${labels}<span class="radar-scale-label radar-scale-zero" aria-hidden="true">0</span><span class="radar-scale-label radar-scale-top" aria-hidden="true">100</span></div>`;
     }
-    byId("radar-comparison").innerHTML = selected.length ? `${legend}${drawing}<table class="radar-values"><caption class="sr-only">所選產業的最新與前次分數</caption><thead><tr><th scope="col">產業</th><th scope="col">最新<br>${esc(shortDate(latest))}</th><th scope="col">前次<br>${esc(shortDate(previous))}</th></tr></thead><tbody>${rowsMarkup}</tbody></table><p class="radar-comparison-caption">同一批產業、同一個量尺比較。缺少可比紀錄以「—」顯示，圖上不補零。${values.some((row) => row.previous === null) ? "前次資料未齊，灰線暫不繪製；可用分數列在上方。" : ""}${values.some((row) => row.current === null) ? "部分最新分數不足，圖形不補點。" : ""}</p>` : drawing;
+    byId("radar-comparison").innerHTML = selected.length ? `${legend}<p class="radar-large-note">圖上①～⑤，對照下方的產業名稱與分數。</p>${drawing}<table class="radar-values"><caption class="sr-only">所選產業的最新與前次分數</caption><thead><tr><th scope="col">產業</th><th scope="col">最新<br>${esc(shortDate(latest))}</th><th scope="col">前次<br>${esc(shortDate(previous))}</th></tr></thead><tbody>${rowsMarkup}</tbody></table><p class="radar-comparison-caption">同一批產業、同一個量尺比較。缺少可比紀錄以「—」顯示，圖上不補零。${values.some((row) => row.previous === null) ? "前次資料未齊，灰線暫不繪製；可用分數列在上方。" : ""}${values.some((row) => row.current === null) ? "部分最新分數不足，圖形不補點。" : ""}</p>` : drawing;
     observeRadarClearance();
   }
 
@@ -431,6 +591,7 @@
     const valid = rows.filter((row) => row.score !== null);
     const title = `<h3>近5個交易日資金分數</h3>`;
     if (!valid.length) return `<section class="industry-trend">${title}<p class="industry-trend-empty">資料正在累積，更新後會顯示走勢。</p></section>`;
+    if (rows.length === 1 && valid.length === 1) return `<section class="industry-trend industry-trend-single"><h3>資金分數紀錄</h3><p class="industry-trend-single-value"><time datetime="${valid[0].date}">${esc(dateLabel(valid[0].date))}</time><strong class="industry-trend-single-score">${esc(fmt(valid[0].score))}分</strong></p><p class="industry-trend-caption">已累積1筆資料，後續逐日加入走勢。</p></section>`;
     const x = (index) => (index + 0.5) / rows.length * 100;
     const y = (score) => 100 - score;
     const segments = [];
@@ -451,10 +612,10 @@
   function renderHistory() {
     [["temperature", state.temperature, "大盤籌碼溫度"], ["radar", state.radar, "資金分數歷史"]].forEach(([kind, data, label]) => {
       const rows = records(data, kind);
-      byId(`${kind}-history-chart`).innerHTML = chartMarkup(rows, label, kind, 120);
+      byId(`${kind}-history-chart`).innerHTML = `<p class="history-source-pair">市場資料日：${esc(dateLabel(kind === "temperature" ? temperatureDate() : data?.asOf))}<br>整理時間：${esc(compiledLabel(data?.generatedAt))}</p>${chartMarkup(rows, label, kind, 120)}`;
       const range = rows.length ? `${dateLabel(rows[0].date)}${rows.length > 1 ? ` 至 ${dateLabel(rows.at(-1).date)}` : ""}` : "尚無紀錄";
       text(`${kind}-history-dates`, `${kind === "radar" ? "整理期間" : "資料期間"}：${range}`);
-      byId(`${kind}-history-records`).innerHTML = rows.length ? `<details class="history-records"><summary>查看每筆${kind === "radar" ? "整理" : "資料"}日期（${rows.length} 筆）</summary>${[...rows].reverse().map((row) => `<div class="history-row ${kind === "radar" ? "cyan" : ""}"><span>${esc(dateLabel(row.date))}</span><strong>${row.score === null ? "缺值" : `${esc(fmt(row.score))} ${kind === "temperature" ? "°C" : "分"}`}</strong></div>`).join("")}</details>` : "";
+      byId(`${kind}-history-records`).innerHTML = rows.length ? `<details id="${kind}-history-details" class="history-records"><summary>查看每筆${kind === "radar" ? "整理" : "資料"}日期（${rows.length} 筆）</summary>${[...rows].reverse().map((row) => `<div class="history-row ${kind === "radar" ? "cyan" : ""}"><span>${esc(dateLabel(row.date))}</span><strong>${row.score === null ? "缺值" : `${esc(fmt(row.score))} ${kind === "temperature" ? "°C" : "分"}`}</strong></div>`).join("")}</details>` : "";
     });
   }
 
@@ -483,6 +644,7 @@
 
   async function load() {
     if (state.busy) return;
+    const startedSerial = interactionSerial;
     state.busy = true;
     const button = byId("refresh-button");
     button.disabled = true;
@@ -494,8 +656,11 @@
       if (result.status === "fulfilled") { state[keys[index]] = result.value; delete state.errors[keys[index]]; }
       else state.errors[keys[index]] = true;
     });
+    const reading = initialHandoff || captureReadingState(), focus = focusDescriptor();
     try {
       render();
+      restorePanels(reading);
+      activateView(state.view, false, false);
       text("load-status", Object.keys(state.errors).length ? "部分資料暫時無法更新，請留意資料日。" : "資料已讀取，以各區日期為準。");
     } catch {
       text("load-status", "資料暫時無法顯示，請稍後刷新。");
@@ -503,10 +668,14 @@
       state.busy = false;
       button.disabled = false;
       button.removeAttribute("aria-busy");
+      restorePosition(reading, focus, startedSerial);
+      initialHandoff = null;
     }
   }
 
-  function activateView(view, focus = false) {
+  function activateView(view, focus = false, scroll = true) {
+    if (!["market", "industry", "history"].includes(view)) return;
+    state.view = view;
     document.querySelectorAll("[data-view]").forEach((button) => {
       const selected = button.dataset.view === view;
       button.setAttribute("aria-selected", String(selected));
@@ -514,7 +683,7 @@
       byId(`panel-${button.dataset.view}`).hidden = !selected;
       if (selected && focus) button.focus();
     });
-    byId("view-navigation").scrollIntoView?.({ block: "start", behavior: "auto" });
+    if (scroll) byId("view-navigation").scrollIntoView?.({ block: "start", behavior: "auto" });
     scheduleRadarClearance();
   }
 
@@ -549,10 +718,47 @@
     button.setAttribute("aria-expanded", String(expanded));
     panel.hidden = !expanded;
     button.querySelector(".disclosure-symbol").textContent = expanded ? "−" : "＋";
+    const name = button.dataset.industryName;
+    if (validPublicName(name)) {
+      if (expanded) state.expandedIndustries.add(name);
+      else state.expandedIndustries.delete(name);
+    }
   });
   ["ranking", "change", "radar"].forEach((mode) => byId(`industry-mode-${mode}`).addEventListener("click", () => { state.industryMode = mode; renderIndustry(); }));
   byId("brief-industry-button").addEventListener("click", () => { state.industryMode = "change"; renderIndustry(); activateView("industry", true); });
-  byId("refresh-button").addEventListener("click", load);
+  byId("refresh-button").addEventListener("click", () => {
+    if (state.busy) return;
+    const refreshed = load();
+    void checkSiteVersion(true);
+    return refreshed;
+  });
+  document.querySelectorAll("[data-global-filter]").forEach((button) => button.addEventListener("click", () => { state.globalFilter = button.dataset.globalFilter; renderGlobalMarkets(); }));
+  byId("global-market-close")?.addEventListener("click", () => {
+    syncDisclosure("global-market-content", false);
+    byId("global-market-toggle").focus?.({ preventScroll: true });
+    byId("global-market-toggle").scrollIntoView?.({ block: "start", behavior: "auto" });
+  });
+  byId("quick-industry-button")?.addEventListener("click", () => { state.industryMode = "ranking"; renderIndustry(); activateView("industry", true); });
+  byId("quick-global-button")?.addEventListener("click", () => {
+    activateView("market", false, false);
+    syncDisclosure("global-market-content", true);
+    byId("global-market-toggle").focus?.({ preventScroll: true });
+    byId("global-market-toggle").scrollIntoView?.({ block: "start", behavior: "auto" });
+  });
+  byId("quick-chips-button")?.addEventListener("click", () => {
+    activateView("market", false, false);
+    syncDisclosure("chips-institutional", true);
+    const toggle = [...document.querySelectorAll("[data-disclosure]")].find((button) => button.dataset.disclosure === "chips-institutional");
+    toggle?.focus?.({ preventScroll: true });
+    toggle?.scrollIntoView?.({ block: "start", behavior: "auto" });
+  });
+  byId("version-update-button")?.addEventListener("click", () => {
+    if (!announcedVersion || !newerVersion(announcedVersion)) return;
+    saveHandoff();
+    if (typeof location !== "undefined") location.reload();
+  });
+  byId("version-dismiss-button")?.addEventListener("click", () => { dismissedVersion = announcedVersion; byId("version-notice").hidden = true; });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState !== "hidden") void checkSiteVersion(); });
   if (typeof window !== "undefined") window.addEventListener("resize", scheduleRadarClearance);
   document.fonts?.ready?.then(scheduleRadarClearance);
   document.fonts?.addEventListener?.("loadingdone", scheduleRadarClearance);
@@ -636,6 +842,16 @@
     document.addEventListener("visibilitychange", onVisible);
     onVisible();
   }
+  initialHandoff = readHandoff();
+  if (initialHandoff) {
+    state.view = initialHandoff.view;
+    state.industryMode = initialHandoff.industryMode;
+    state.globalFilter = initialHandoff.globalFilter;
+    state.expandedIndustries = new Set(initialHandoff.expandedIndustries);
+    state.radarSelection = initialHandoff.radarSelection;
+    activateView(state.view, false, false);
+  }
   load();
+  void checkSiteVersion();
   startVisitorCounts();
 })();

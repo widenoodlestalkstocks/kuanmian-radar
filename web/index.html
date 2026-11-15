@@ -1,21 +1,26 @@
 <!doctype html>
-<html lang="zh-Hant-TW" data-theme="dark">
+<html lang="zh-Hant-TW" data-theme="dark" data-text-size="standard">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta id="theme-color" name="theme-color" content="#080A0B">
+    <meta name="kuanmian-ui-version" content="20261116-24">
     <meta name="description" content="寬麵說股：一起看懂大盤籌碼溫度、產業資金與歷史變化。">
     <title>寬麵說股｜大盤與資金雷達</title>
     <script>
       (() => {
-        let theme = "dark";
-        try { if (localStorage.getItem("kuanmian-theme") === "light") theme = "light"; } catch {}
+        let theme = "dark", textSize = "standard";
+        try {
+          if (localStorage.getItem("kuanmian-theme") === "light") theme = "light";
+          if (localStorage.getItem("kuanmian-text-size") === "large") textSize = "large";
+        } catch {}
         document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.textSize = textSize;
         document.getElementById("theme-color").setAttribute("content", theme === "light" ? "#F5F1E9" : "#080A0B");
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=20261115-23">
-    <script src="./app.js?v=20261115-23" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=20261116-24">
+    <script src="./app.js?v=20261116-24" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要內容</a>
@@ -24,11 +29,16 @@
         <a class="brand" href="./" aria-label="寬麵說股首頁"><span class="brand-mark" aria-hidden="true">寬</span><span>寬麵說股<span class="brand-subtitle">每日市場觀察</span></span></a>
         <div class="header-actions">
           <button id="theme-toggle" class="theme-toggle" type="button" role="switch" aria-checked="true" aria-label="深色模式，切換為淺色"><span class="theme-option-dark" aria-hidden="true">深色</span><span class="theme-option-light" aria-hidden="true">淺色</span></button>
+          <button id="font-size-toggle" class="font-size-toggle" type="button" aria-pressed="false" aria-label="目前標準字體，切換為大字">大字</button>
           <button id="refresh-button" class="refresh-button" type="button"><span aria-hidden="true">↻</span> 刷新資料</button>
         </div>
       </header>
 
       <main id="main-content">
+        <section id="version-notice" class="version-notice" aria-label="網站新版提醒" hidden>
+          <p>網站有新版，更新後繼續看。</p>
+          <div><button id="version-update-button" type="button">點此更新</button><button id="version-dismiss-button" type="button" aria-label="暫時關閉新版提醒">稍後</button></div>
+        </section>
         <nav id="view-navigation" class="view-nav" aria-label="選擇觀察內容">
           <div class="view-tabs" role="tablist" aria-label="市場觀察分頁">
             <button id="tab-market" class="view-tab" type="button" role="tab" aria-selected="true" aria-controls="panel-market" tabindex="0" data-view="market"><span class="nav-number" aria-hidden="true">01</span>看大盤</button>
@@ -43,9 +53,8 @@
 
         <section id="panel-market" class="view-panel" role="tabpanel" aria-labelledby="tab-market" tabindex="0">
         <section class="intro" aria-labelledby="page-title">
-          <div class="intro-heading"><p class="eyebrow">寬麵陪你看市場</p><h1 id="page-title">大盤與資金，<br class="mobile-break">我們一起看。</h1></div>
+          <div class="intro-heading"><h1 id="page-title">大盤與資金</h1><p id="overview-source-date" class="overview-source-date">市場資料日：—</p></div>
           <div id="hero-character-slot" class="hero-character-slot" aria-hidden="true"><img src="./assets/xiaolangke.png?v=20261115-sword" alt="" width="1254" height="1254" decoding="async" draggable="false"></div>
-          <p class="intro-copy">看大盤溫度，也看資金流向。</p>
         </section>
 
 
@@ -65,12 +74,6 @@
           </article>
         </section>
 
-          <section id="latest-highlights" class="latest-highlights" aria-labelledby="highlights-title">
-            <div class="brief-heading"><div><p class="eyebrow">從這次變化開始看</p><h2 id="highlights-title">這次看這裡</h2></div><p id="highlights-date" class="section-date">資料日：—</p></div>
-            <p id="highlights-status" class="brief-status"></p>
-            <div id="highlight-list" class="highlight-list"><p class="empty-state">正在整理已保存的變化…</p></div>
-            <button id="brief-industry-button" class="brief-action" type="button">看產業變化 <span aria-hidden="true">→</span></button>
-          </section>
         <section id="holding-reference-card" class="holding-reference-card" aria-labelledby="holding-reference-title" data-available="false">
           <h2 id="holding-reference-title">模型參考持股水位</h2>
           <strong id="holding-reference-value" class="holding-reference-value">—</strong>
@@ -78,14 +81,39 @@
           <p id="holding-reference-date" class="holding-reference-date">資料日：—</p>
         </section>
 
+        <nav class="quick-tools" aria-label="快速查看市場資料">
+          <button id="quick-industry-button" type="button">看產業</button>
+          <button id="quick-global-button" type="button">看全球</button>
+          <button id="quick-chips-button" type="button">看法人</button>
+        </nav>
+        <details class="reading-guide">
+          <summary>這些數字怎麼看？</summary>
+          <dl><div><dt>大盤籌碼溫度</dt><dd>搭配狀態標籤，觀察大盤籌碼與風險提醒。</dd></div><div><dt>資金雷達分數</dt><dd>以0–100分觀察資金表現；分數與價格漲跌分開看。</dd></div><div><dt>模型參考持股水位</dt><dd>持股部位的參考比例，請搭配自己的資金安排判斷。</dd></div></dl>
+        </details>
+
+        <section id="latest-highlights" class="latest-highlights" aria-labelledby="highlights-title">
+          <div class="brief-heading"><div><p class="eyebrow">從這次變化開始看</p><h2 id="highlights-title">這次看這裡</h2></div><p id="highlights-date" class="section-date">資料日：—</p></div>
+          <p id="highlights-status" class="brief-status"></p>
+          <div id="highlight-list" class="highlight-list"><p class="empty-state">正在整理已保存的變化…</p></div>
+          <button id="brief-industry-button" class="brief-action" type="button">看產業變化 <span aria-hidden="true">→</span></button>
+        </section>
+
         <section class="global-section" aria-label="全球市場行情">
           <button id="global-market-toggle" class="global-market-toggle" type="button" aria-expanded="false" aria-controls="global-market-content" data-disclosure="global-market-content"><span class="global-market-icon" aria-hidden="true">▂▅▇</span><span>全球市場</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button>
           <div id="global-market-content" class="global-market-content" hidden>
             <div class="global-market-heading"><h2>原油、黃金與各國指數</h2><p>最近一日漲跌，與前一筆日資料比較。</p></div>
+            <div class="global-market-filters" role="group" aria-label="選擇市場分類">
+              <button id="global-filter-focus" type="button" data-global-filter="focus" aria-pressed="true">重點</button>
+              <button id="global-filter-us" type="button" data-global-filter="us" aria-pressed="false">美股</button>
+              <button id="global-filter-asia" type="button" data-global-filter="asia" aria-pressed="false">亞洲</button>
+              <button id="global-filter-fx" type="button" data-global-filter="fx" aria-pressed="false">匯率</button>
+              <button id="global-filter-all" type="button" data-global-filter="all" aria-pressed="false">全部</button>
+            </div>
             <p id="global-market-status" class="global-market-status" role="status">正在讀取市場資料…</p>
             <p id="global-market-scale" class="global-market-scale"></p>
             <div id="global-market-list" class="global-market-list"><p class="empty-state">正在讀取市場資料…</p></div>
             <p class="global-market-caption">各市場交易日不同，以每項資料日為準。原油、黃金為期貨價格；本區並非即時報價。</p>
+            <button id="global-market-close" class="global-market-close" type="button">收合全球市場</button>
           </div>
         </section>
 
@@ -133,7 +161,7 @@
 
         <section id="panel-history" class="view-panel" role="tabpanel" aria-labelledby="tab-history" tabindex="0" hidden>
           <div class="section-heading"><div><p class="eyebrow">回頭看變化</p><h2>兩套紀錄，分開看</h2></div></div>
-          <p class="section-description">溫度依來源資料日排列；雷達依每日整理日排列。雷達整理日並非交易日，主卡另列最新來源交易日。</p>
+          <p class="section-description">市場資料日是行情所屬日期；整理日是網站保存結果的日期，兩者分開標示。</p>
           <section class="history-section" aria-labelledby="temperature-history-title">
             <div class="history-heading"><h3 id="temperature-history-title">大盤籌碼溫度</h3><p id="temperature-history-dates" class="section-date">資料期間：—</p></div>
             <div id="temperature-history-chart" class="chart-card"><p class="empty-state">正在讀取歷史資料…</p></div>
@@ -156,9 +184,10 @@
           <p class="visitor-source">2026/11/15 起算 · 統計服務 <a href="https://hitscounter.dev/" target="_blank" rel="noopener noreferrer">HitsCounter ↗</a></p>
         </section>
         <details class="release-notes">
-          <summary>網站更新紀錄 <span>2026/11/15</span></summary>
+          <summary>網站更新紀錄 <span>2026/11/16</span></summary>
           <div class="release-content">
             <p class="release-caption">功能維護與市場資料日期分開記錄。</p>
+            <article><time datetime="2026-11-16">11/16</time><p>首頁先看市場日期、大盤與資金結果及參考水位；加入可保存的大字選擇、白話數字說明與市場分類。刷新保留展開內容，後續新版提供更新提醒。</p></article>
             <article><time datetime="2026-11-15">11/15</time><p>新增可展開的全球市場，查看原油、黃金、VIX 與各國指數的漲跌長條、價格及資料日。入口提前、最新變化摘要、產業名次變動與雷達比較上線；新增累計與今日瀏覽量，首頁換上黑袍持刀浪客。</p></article>
             <article><time datetime="2026-11-14">11/14</time><p>加入產業近5筆走勢、分數升降標示，恢復模型參考持股水位，並調整手機閱讀間距。</p></article>
           </div>
