@@ -38,7 +38,12 @@
           "date": "2026-11-13",
           "score": 71.7
         }
-      ]
+      ],
+      "ranking": {
+        "status": "continuing",
+        "previousRank": 4,
+        "change": 3
+      }
     },
     {
       "name": "ASIC",
@@ -67,7 +72,12 @@
           "date": "2026-11-13",
           "score": 67.06
         }
-      ]
+      ],
+      "ranking": {
+        "status": "continuing",
+        "previousRank": 3,
+        "change": 1
+      }
     },
     {
       "name": "塑化",
@@ -96,7 +106,12 @@
           "date": "2026-11-13",
           "score": 61.7
         }
-      ]
+      ],
+      "ranking": {
+        "status": "new",
+        "previousRank": null,
+        "change": null
+      }
     },
     {
       "name": "金控",
@@ -125,7 +140,12 @@
           "date": "2026-11-13",
           "score": 61.7
         }
-      ]
+      ],
+      "ranking": {
+        "status": "continuing",
+        "previousRank": 7,
+        "change": null
+      }
     },
     {
       "name": "玻纖布",
@@ -154,7 +174,12 @@
           "date": "2026-11-13",
           "score": 58.9
         }
-      ]
+      ],
+      "ranking": {
+        "status": "continuing",
+        "previousRank": 1,
+        "change": -4
+      }
     },
     {
       "name": "航空",
@@ -183,7 +208,12 @@
           "date": "2026-11-13",
           "score": 58.39
         }
-      ]
+      ],
+      "ranking": {
+        "status": "continuing",
+        "previousRank": 9,
+        "change": 3
+      }
     },
     {
       "name": "化合物半導體",
@@ -212,7 +242,12 @@
           "date": "2026-11-13",
           "score": 55.99
         }
-      ]
+      ],
+      "ranking": {
+        "status": "new",
+        "previousRank": null,
+        "change": null
+      }
     },
     {
       "name": "測試介面",
@@ -241,7 +276,12 @@
           "date": "2026-11-13",
           "score": 55.52
         }
-      ]
+      ],
+      "ranking": {
+        "status": "continuing",
+        "previousRank": 5,
+        "change": -3
+      }
     },
     {
       "name": "食品",
@@ -270,7 +310,12 @@
           "date": "2026-11-13",
           "score": 55.1
         }
-      ]
+      ],
+      "ranking": {
+        "status": "new",
+        "previousRank": null,
+        "change": null
+      }
     },
     {
       "name": "紡織",
@@ -299,7 +344,12 @@
           "date": "2026-11-13",
           "score": 55.0
         }
-      ]
+      ],
+      "ranking": {
+        "status": "continuing",
+        "previousRank": 2,
+        "change": -8
+      }
     }
   ],
   "history": [
@@ -310,6 +360,26 @@
     {
       "date": "2026-11-14",
       "score": 48.45
+    }
+  ],
+  "highlights": [
+    {
+      "kind": "score-rise",
+      "title": "前十名中，塑化分數上升最多",
+      "detail": "本次 61.7 分，較 11/12 增加 22.8 分。",
+      "asOf": "2026-11-13"
+    },
+    {
+      "kind": "price-score",
+      "title": "價格與分數不同步｜紡織",
+      "detail": "產業平均日漲跌 +2.49%，資金分數較 11/12 -2.33 分。",
+      "asOf": "2026-11-13"
+    },
+    {
+      "kind": "ranking-entry",
+      "title": "化合物半導體新進前十",
+      "detail": "本次資金分數 55.99 分，11/12 未列前十。",
+      "asOf": "2026-11-13"
     }
   ]
 }

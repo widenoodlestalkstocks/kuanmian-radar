@@ -14,8 +14,8 @@
         document.getElementById("theme-color").setAttribute("content", theme === "light" ? "#F5F1E9" : "#080A0B");
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=20261115-19">
-    <script src="./app.js?v=20261115-19" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=20261115-20">
+    <script src="./app.js?v=20261115-20" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要內容</a>
@@ -29,13 +29,27 @@
       </header>
 
       <main id="main-content">
+        <nav id="view-navigation" class="view-nav" aria-label="選擇觀察內容">
+          <div class="view-tabs" role="tablist" aria-label="市場觀察分頁">
+            <button id="tab-market" class="view-tab" type="button" role="tab" aria-selected="true" aria-controls="panel-market" tabindex="0" data-view="market"><span class="nav-number" aria-hidden="true">01</span>看大盤</button>
+            <button id="tab-industry" class="view-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-industry" tabindex="-1" data-view="industry"><span class="nav-number" aria-hidden="true">02</span>看產業</button>
+            <button id="tab-history" class="view-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-history" tabindex="-1" data-view="history"><span class="nav-number" aria-hidden="true">03</span>看歷史</button>
+          </div>
+        </nav>
+        <p id="load-status" class="load-status" role="status" aria-live="polite">正在讀取最新資料…</p>
+
+
+
+
+        <section id="panel-market" class="view-panel" role="tabpanel" aria-labelledby="tab-market" tabindex="0">
         <section class="intro" aria-labelledby="page-title">
           <div class="intro-heading"><p class="eyebrow">寬麵陪你看市場</p><h1 id="page-title">大盤與資金，<br class="mobile-break">我們一起看。</h1></div>
           <div id="hero-character-slot" class="hero-character-slot" aria-hidden="true"><img src="./assets/xiaolangke.png?v=20261115-sword" alt="" width="1254" height="1254" decoding="async" draggable="false"></div>
           <p class="intro-copy">看大盤溫度，也看資金流向。</p>
         </section>
 
-        <p id="load-status" class="load-status" role="status" aria-live="polite">正在讀取最新資料…</p>
+
+
         <section class="overview-grid" aria-label="市場總覽">
           <article id="temperature-card" class="overview-card temperature-card" data-signal="unavailable">
             <div class="card-topline"><h2>大盤籌碼溫度</h2><span id="temperature-signal" class="card-tag" role="status" aria-live="polite">讀取中</span></div>
@@ -51,6 +65,12 @@
           </article>
         </section>
 
+          <section id="latest-highlights" class="latest-highlights" aria-labelledby="highlights-title">
+            <div class="brief-heading"><div><p class="eyebrow">從這次變化開始看</p><h2 id="highlights-title">這次看這裡</h2></div><p id="highlights-date" class="section-date">資料日：—</p></div>
+            <p id="highlights-status" class="brief-status"></p>
+            <div id="highlight-list" class="highlight-list"><p class="empty-state">正在整理已保存的變化…</p></div>
+            <button id="brief-industry-button" class="brief-action" type="button">看產業變化 <span aria-hidden="true">→</span></button>
+          </section>
         <section id="holding-reference-card" class="holding-reference-card" aria-labelledby="holding-reference-title" data-available="false">
           <h2 id="holding-reference-title">模型參考持股水位</h2>
           <strong id="holding-reference-value" class="holding-reference-value">—</strong>
@@ -60,15 +80,6 @@
 
         <div id="data-notices" class="data-notices" aria-live="polite"></div>
 
-        <nav class="view-nav" aria-label="選擇觀察內容">
-          <div class="view-tabs" role="tablist" aria-label="市場觀察分頁">
-            <button id="tab-market" class="view-tab" type="button" role="tab" aria-selected="true" aria-controls="panel-market" tabindex="0" data-view="market"><span class="nav-number" aria-hidden="true">01</span>看大盤</button>
-            <button id="tab-industry" class="view-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-industry" tabindex="-1" data-view="industry"><span class="nav-number" aria-hidden="true">02</span>看產業</button>
-            <button id="tab-history" class="view-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-history" tabindex="-1" data-view="history"><span class="nav-number" aria-hidden="true">03</span>看歷史</button>
-          </div>
-        </nav>
-
-        <section id="panel-market" class="view-panel" role="tabpanel" aria-labelledby="tab-market" tabindex="0">
           <div class="section-heading"><div><p class="eyebrow">大盤觀察</p><h2>溫度怎麼走？</h2></div><p id="market-chart-date" class="section-date">資料日：—</p></div>
           <div id="temperature-chart" class="chart-card"><p class="empty-state">正在讀取溫度趨勢…</p></div>
           <article id="structure-card" class="structure-card"><p class="empty-state">正在讀取市場狀態…</p></article>
@@ -88,8 +99,24 @@
         </section>
 
         <section id="panel-industry" class="view-panel" role="tabpanel" aria-labelledby="tab-industry" tabindex="0" hidden>
-          <div class="section-heading"><div><p class="eyebrow">產業資金觀察</p><h2>細產業資金前 10</h2></div><p id="industry-date" class="section-date">資料日：—</p></div>
+          <div class="section-heading"><div><p id="industry-eyebrow" class="eyebrow">產業資金觀察</p><h2 id="industry-title">細產業資金前 10</h2></div><p id="industry-date" class="section-date">資料日：—</p></div>
           <p id="industry-description" class="section-description">只列資金分數前 10 個細產業，點開看產業變化。</p>
+          <p id="industry-update-note" class="industry-update-note" role="status"></p>
+          <div class="industry-modes" role="group" aria-label="產業查看方式">
+            <button id="industry-mode-ranking" type="button" aria-pressed="true">看排名</button>
+            <button id="industry-mode-change" type="button" aria-pressed="false">看升降</button>
+            <button id="industry-mode-radar" type="button" aria-pressed="false">看雷達</button>
+          </div>
+          <section id="industry-radar" class="industry-radar" aria-labelledby="radar-comparison-title" hidden>
+            <h3 id="radar-comparison-title" class="sr-only">產業強弱，放在一起看</h3>
+            <details id="radar-picker" class="radar-picker">
+              <summary id="radar-picker-summary">更換比較產業（已選5）</summary>
+              <p class="radar-picker-help">從目前前10名選3–5個產業比較。</p>
+              <div id="radar-selectors" class="radar-selectors" role="group" aria-label="選擇雷達比較產業"></div>
+              <p id="radar-selection-note" class="radar-selection-note" role="status" aria-live="polite"></p>
+            </details>
+            <div id="radar-comparison" class="radar-comparison"></div>
+          </section>
           <div id="industry-list" class="industry-list"><p class="empty-state">正在讀取產業資料…</p></div>
         </section>
 
@@ -107,6 +134,14 @@
             <div id="radar-history-records"></div>
           </section>
         </section>
+        <details class="release-notes">
+          <summary>網站更新紀錄 <span>2026/11/15</span></summary>
+          <div class="release-content">
+            <p class="release-caption">功能維護與市場資料日期分開記錄。</p>
+            <article><time datetime="2026-11-15">11/15</time><p>入口提前、最新變化摘要、產業名次變動與雷達比較上線；首頁換上黑袍持刀浪客。</p></article>
+            <article><time datetime="2026-11-14">11/14</time><p>加入產業近5筆走勢、分數升降標示，恢復模型參考持股水位，並調整手機閱讀間距。</p></article>
+          </div>
+        </details>
         <section class="platform-section" aria-labelledby="platform-title">
           <h2 id="platform-title">寬麵各平台</h2>
           <a class="support-link" href="https://portaly.cc/widenoodlestalkstocks/support" target="_blank" rel="noopener noreferrer"><span class="support-mark" aria-hidden="true">✦</span><span>無私贊助</span><span class="support-open" aria-hidden="true">↗</span></a>
