@@ -198,5 +198,187 @@
       "score": 50.13
     }
   ],
-  "highlights": []
+  "highlights": [],
+  "globalMarkets": [
+    {
+      "id": "wti",
+      "name": "WTI 原油期貨",
+      "group": "焦點指標",
+      "unit": "美元／桶",
+      "price": 88.56,
+      "changePct": -0.2,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/CL%3DF/"
+    },
+    {
+      "id": "gold",
+      "name": "黃金期貨",
+      "group": "焦點指標",
+      "unit": "美元／金衡盎司",
+      "price": 3886.3,
+      "changePct": 0.03,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/GC%3DF/"
+    },
+    {
+      "id": "vix",
+      "name": "VIX 恐慌指數",
+      "group": "焦點指標",
+      "unit": "點",
+      "price": 19.3,
+      "changePct": 3.21,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/%5EVIX/"
+    },
+    {
+      "id": "sp500",
+      "name": "美國 S&P 500",
+      "group": "各國股市",
+      "unit": "點",
+      "price": 7561.67,
+      "changePct": -0.4,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/%5EGSPC/"
+    },
+    {
+      "id": "nasdaq",
+      "name": "美國 Nasdaq",
+      "group": "各國股市",
+      "unit": "點",
+      "price": 25136.27,
+      "changePct": -0.91,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/%5EIXIC/"
+    },
+    {
+      "id": "sox",
+      "name": "費城半導體",
+      "group": "各國股市",
+      "unit": "點",
+      "price": 10146.32,
+      "changePct": -3.43,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/%5ESOX/"
+    },
+    {
+      "id": "taiex",
+      "name": "台灣加權",
+      "group": "各國股市",
+      "unit": "點",
+      "price": 43675.12,
+      "changePct": 1.35,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/%5ETWII/"
+    },
+    {
+      "id": "tpex",
+      "name": "台灣櫃買",
+      "group": "各國股市",
+      "unit": "點",
+      "price": 342.41,
+      "changePct": 1.99,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "FinMind",
+      "sourceUrl": "https://finmind.github.io/tutor/TaiwanMarket/Technical/"
+    },
+    {
+      "id": "nikkei",
+      "name": "日本日經 225",
+      "group": "各國股市",
+      "unit": "點",
+      "price": 61142.35,
+      "changePct": 0.53,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/%5EN225/"
+    },
+    {
+      "id": "kospi",
+      "name": "韓國 KOSPI",
+      "group": "各國股市",
+      "unit": "點",
+      "price": 5290.53,
+      "changePct": -0.98,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/%5EKS11/"
+    },
+    {
+      "id": "hangseng",
+      "name": "香港恒生",
+      "group": "各國股市",
+      "unit": "點",
+      "price": 23637.6,
+      "changePct": -1.55,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/%5EHSI/"
+    },
+    {
+      "id": "csi300",
+      "name": "中國滬深 300",
+      "group": "各國股市",
+      "unit": "點",
+      "price": null,
+      "changePct": null,
+      "asOf": null,
+      "status": "unavailable",
+      "source": null,
+      "sourceUrl": null
+    },
+    {
+      "id": "shanghai",
+      "name": "中國上證",
+      "group": "各國股市",
+      "unit": "點",
+      "price": 3634.35,
+      "changePct": -0.59,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/000001.SS/"
+    },
+    {
+      "id": "dxy",
+      "name": "美元指數 DXY",
+      "group": "匯率",
+      "unit": "點",
+      "price": 103.41,
+      "changePct": 0.23,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/DX-Y.NYB/"
+    },
+    {
+      "id": "usdtwd",
+      "name": "美元兌台幣",
+      "group": "匯率",
+      "unit": "台幣／美元",
+      "price": 32.94,
+      "changePct": 0.23,
+      "asOf": "2026-11-13",
+      "status": "available",
+      "source": "Yahoo Finance",
+      "sourceUrl": "https://finance.yahoo.com/quote/TWD%3DX/"
+    }
+  ]
 }

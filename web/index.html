@@ -14,8 +14,8 @@
         document.getElementById("theme-color").setAttribute("content", theme === "light" ? "#F5F1E9" : "#080A0B");
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=20261115-22">
-    <script src="./app.js?v=20261115-22" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=20261115-23">
+    <script src="./app.js?v=20261115-23" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要內容</a>
@@ -76,6 +76,17 @@
           <strong id="holding-reference-value" class="holding-reference-value">—</strong>
           <p id="holding-reference-status" class="holding-reference-status" role="status" aria-live="polite">讀取中</p>
           <p id="holding-reference-date" class="holding-reference-date">資料日：—</p>
+        </section>
+
+        <section class="global-section" aria-label="全球市場行情">
+          <button id="global-market-toggle" class="global-market-toggle" type="button" aria-expanded="false" aria-controls="global-market-content" data-disclosure="global-market-content"><span class="global-market-icon" aria-hidden="true">▂▅▇</span><span>全球市場</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button>
+          <div id="global-market-content" class="global-market-content" hidden>
+            <div class="global-market-heading"><h2>原油、黃金與各國指數</h2><p>最近一日漲跌，與前一筆日資料比較。</p></div>
+            <p id="global-market-status" class="global-market-status" role="status">正在讀取市場資料…</p>
+            <p id="global-market-scale" class="global-market-scale"></p>
+            <div id="global-market-list" class="global-market-list"><p class="empty-state">正在讀取市場資料…</p></div>
+            <p class="global-market-caption">各市場交易日不同，以每項資料日為準。原油、黃金為期貨價格；本區並非即時報價。</p>
+          </div>
         </section>
 
         <div id="data-notices" class="data-notices" aria-live="polite"></div>
@@ -148,7 +159,7 @@
           <summary>網站更新紀錄 <span>2026/11/15</span></summary>
           <div class="release-content">
             <p class="release-caption">功能維護與市場資料日期分開記錄。</p>
-            <article><time datetime="2026-11-15">11/15</time><p>入口提前、最新變化摘要、產業名次變動與雷達比較上線；新增累計與今日瀏覽量，首頁換上黑袍持刀浪客。</p></article>
+            <article><time datetime="2026-11-15">11/15</time><p>新增可展開的全球市場，查看原油、黃金、VIX 與各國指數的漲跌長條、價格及資料日。入口提前、最新變化摘要、產業名次變動與雷達比較上線；新增累計與今日瀏覽量，首頁換上黑袍持刀浪客。</p></article>
             <article><time datetime="2026-11-14">11/14</time><p>加入產業近5筆走勢、分數升降標示，恢復模型參考持股水位，並調整手機閱讀間距。</p></article>
           </div>
         </details>
@@ -167,7 +178,7 @@
 
       <footer class="site-footer">
         <div class="footer-brand">寬麵說股<span>一起把市場看清楚。</span></div>
-        <p>行情資料來源：FinMind。</p>
+        <p>行情資料來源：FinMind、Yahoo Finance。</p>
         <p>本頁供市場觀察，不構成個別投資建議。</p>
       </footer>
     </div>

@@ -135,6 +135,42 @@ h3{font-size:23px}
 .history-row strong{font-size:21px;color:var(--text);font-variant-numeric:tabular-nums}
 .history-row.cyan strong{color:var(--cyan)}
 .chips-section{margin-top:30px}
+.global-section{margin-top:23px;margin-bottom:24px}
+.global-market-toggle{display:inline-flex;align-items:center;gap:13px;min-height:48px;padding:8px 16px;border:1px solid var(--gold);border-radius:11px;background:var(--gold-soft);color:var(--gold-text);font-size:19px;font-weight:650;text-align:left}
+.global-market-icon{font-size:20px;letter-spacing:2px;line-height:1}
+.global-market-toggle .disclosure-symbol{margin-left:10px;font-size:24px;font-weight:400;line-height:1}
+.global-market-toggle[aria-expanded="true"]{background:var(--panel);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.global-market-content{padding:23px 22px;border:1px solid var(--control-line);border-radius:0 13px 13px 13px;background:var(--panel)}
+.global-market-heading h2{font-size:25px;line-height:1.4}
+.global-market-heading>p{margin-top:7px;font-size:18px;color:var(--muted)}
+.global-market-status,.global-market-scale,.global-market-caption{font-size:18px;color:var(--muted);overflow-wrap:anywhere}
+.global-market-status{margin-top:15px}
+.global-market-scale{margin-top:9px}
+.global-market-group{margin-top:24px}
+.global-market-group>h3{padding-bottom:10px;border-bottom:1px solid var(--line);font-size:21px;color:var(--gold-text)}
+.global-market-rows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:30px}
+.global-market-row{min-width:0;padding:17px 0 15px;border-bottom:1px solid var(--line)}
+.global-market-topline{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px}
+.global-market-topline h4{margin:0;font-size:20px;font-weight:650;line-height:1.5;overflow-wrap:anywhere}
+.global-market-change{max-width:155px;padding:3px 8px;border-radius:6px;background:var(--gold-soft);color:var(--muted);font-size:18px;line-height:1.5;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;text-align:center}
+.global-market-row[data-direction="up"] .global-market-change{background:#C1121F;color:#FFFFFF}
+.global-market-row[data-direction="down"] .global-market-change{background:#006B3C;color:#FFFFFF}
+.global-market-bar{height:14px;margin:13px 0 11px;position:relative;border-radius:3px;background:var(--panel-deep);box-shadow:inset 0 0 0 1px var(--line)}
+.global-market-zero{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--control-line)}
+.global-market-fill{position:absolute;top:0;bottom:0;border:1px solid rgba(255,255,255,.3);border-radius:3px}
+.global-market-row[data-direction="up"] .global-market-fill{background:#C1121F}
+.global-market-row[data-direction="down"] .global-market-fill{background:#006B3C}
+.global-market-flat{position:absolute;left:calc(50% - 3px);top:4px;width:6px;height:6px;background:var(--muted);border-radius:50%}
+.global-market-no-bar{margin:9px 0 4px;color:var(--muted);font-size:18px}
+.global-market-meta{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;min-width:0}
+.global-market-value{font-size:20px;font-weight:650;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.global-market-value>span:not(.sr-only){margin-left:7px;font-size:18px;font-weight:400;color:var(--muted)}
+.global-market-date{font-size:18px;color:var(--muted);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.global-market-stale{display:inline-block;margin-left:8px;color:var(--gold-text)}
+.global-market-source{display:inline-flex;align-items:center;min-height:48px;padding:4px 5px;font-size:18px;color:var(--gold-text);text-decoration-thickness:1px}
+.global-market-caption{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+@media(hover:hover){.global-market-toggle:hover{background:var(--hover)}}
+@media(max-width:700px){.global-market-content{padding:20px 16px}.global-market-heading h2{font-size:23px}.global-market-rows{grid-template-columns:minmax(0,1fr)}.global-market-group{margin-top:22px}.global-market-topline{gap:12px}.global-market-topline h4{font-size:19px}.global-market-meta{gap:4px 10px}}
 .chips-disclosures{display:grid;gap:12px}
 .chips-disclosure{border:1px solid var(--control-line);border-radius:13px;background:var(--panel);overflow:hidden}
 .chips-toggle{display:flex;align-items:center;justify-content:space-between;gap:15px;width:100%;min-height:66px;padding:16px 20px;border:0;background:transparent;text-align:left;font-size:22px;font-weight:650}

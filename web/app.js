@@ -168,6 +168,51 @@
     byId("holding-reference-status").hidden = available;
   }
 
+  function renderGlobalMarkets() {
+    const order = ["wti", "gold", "vix", "sp500", "nasdaq", "sox", "taiex", "tpex", "nikkei", "kospi", "hangseng", "csi300", "shanghai", "dxy", "usdtwd"];
+    const groups = ["焦點指標", "各國股市", "匯率"];
+    const raw = Array.isArray(state.radar?.globalMarkets) ? state.radar.globalMarkets : [];
+    const rows = order.flatMap((id) => {
+      const matches = raw.filter((row) => isObject(row) && row.id === id);
+      if (!matches.length) return [];
+      const row = matches[0], observed = dateKey(row.asOf), age = daysOld(observed);
+      const validDate = observed !== null && age !== null && age >= 0;
+      const available = matches.length === 1 && ["available", "stale"].includes(row.status) && validDate &&
+        typeof row.price === "number" && Number.isFinite(row.price) && row.price > 0 &&
+        typeof row.changePct === "number" && Number.isFinite(row.changePct) && row.changePct >= -100;
+      const sourceUrl = typeof row.sourceUrl === "string" && /^https:\/\/(?:finance\.yahoo\.com|finmind\.github\.io|www\.tpex\.org\.tw)\//.test(row.sourceUrl) ? row.sourceUrl : null;
+      return [{ id, name: briefText(row.name, "市場指標").slice(0, 60), group: groups.includes(row.group) ? row.group : "焦點指標",
+        unit: typeof row.unit === "string" ? row.unit.slice(0, 30) : "", asOf: validDate ? observed : null,
+        price: available ? row.price : null, changePct: available ? row.changePct : null,
+        stale: available && (row.status === "stale" || age > 7), sourceUrl }];
+    });
+    const available = rows.filter((row) => row.changePct !== null), stale = rows.filter((row) => row.stale);
+    const scale = Math.max(1, Math.ceil(Math.max(0, ...available.map((row) => Math.abs(row.changePct)))));
+    let status = rows.length ? `已取得 ${available.length} 項行情` : "全球市場資料尚未取得，請稍後刷新。";
+    if (rows.length && available.length < rows.length) status += `，${rows.length - available.length} 項暫缺。`;
+    else if (rows.length) status += "。";
+    if (stale.length) status += ` ${stale.length} 項較久未更新，已標示原資料日。`;
+    if (state.errors.radar || state.updateStatus?.components?.radar?.status === "failed") status += " 本次更新未完成，目前保留已保存行情。";
+    else if (state.errors.updateStatus || !["success", "running"].includes(state.updateStatus?.components?.radar?.status)) status += " 更新狀態待確認，請留意各項資料日。";
+    else if (state.updateStatus?.components?.radar?.status === "running") status += " 行情更新中，目前顯示已保存資料。";
+    text("global-market-status", status);
+    text("global-market-scale", available.length ? `長條中央為 0%，左右同一比例（±${fmt(scale, 0)}%）。紅漲綠跌，只表示價格變動。` : "缺資料以「—」標示，不視為持平。");
+    byId("global-market-list").innerHTML = rows.length ? groups.map((group) => {
+      const items = rows.filter((row) => row.group === group);
+      if (!items.length) return "";
+      return `<section class="global-market-group"><h3>${esc(group)}</h3><div class="global-market-rows">${items.map((row) => {
+        const direction = row.changePct === null ? "unavailable" : row.changePct > 0 ? "up" : row.changePct < 0 ? "down" : "flat";
+        const symbol = direction === "up" ? "▲" : direction === "down" ? "▼" : direction === "flat" ? "—" : "";
+        const change = row.changePct === null ? "—" : `${symbol} ${signed(row.changePct, "%")}`;
+        const width = row.changePct === null ? 0 : Math.abs(row.changePct) / scale * 50;
+        const left = row.changePct !== null && row.changePct < 0 ? 50 - width : 50;
+        const bar = row.changePct === null ? `<div class="global-market-no-bar">行情暫缺</div>` : `<div class="global-market-bar" aria-hidden="true"><span class="global-market-zero"></span>${row.changePct === 0 ? `<span class="global-market-flat"></span>` : `<span class="global-market-fill" style="left:${left.toFixed(3)}%;width:${width.toFixed(3)}%"></span>`}</div>`;
+        const source = row.sourceUrl ? `<a class="global-market-source" href="${esc(row.sourceUrl)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(row.name)}行情來源">來源 ↗</a>` : "";
+        return `<article class="global-market-row" data-market="${row.id}" data-direction="${direction}"><div class="global-market-topline"><h4>${esc(row.name)}</h4><strong class="global-market-change" aria-label="${esc(row.changePct === null ? "最近一日漲跌未取得" : `最近一日漲跌 ${signed(row.changePct, "%")}`)}">${esc(change)}</strong></div>${bar}<div class="global-market-meta"><p class="global-market-value"><span class="sr-only">最新值 </span>${esc(fmt(row.price, 2))}${row.price === null ? "" : `<span>${esc(row.unit)}</span>`}</p><p class="global-market-date">資料日 <time${row.asOf ? ` datetime="${row.asOf}"` : ""}>${esc(row.asOf ? dateLabel(row.asOf) : "—")}</time>${row.stale ? `<span class="global-market-stale">待更新</span>` : ""}</p>${source}</div></article>`;
+      }).join("")}</div></section>`;
+    }).join("") : `<p class="empty-state">目前沒有可用的全球市場行情。</p>`;
+  }
+
   function radarUpdateNote(compact = false) {
     const observed = dateKey(state.radar?.asOf), component = state.updateStatus?.components?.radar;
     if (!observed) return "目前沒有可確認日期的產業資料。";
@@ -416,6 +461,7 @@
   function render() {
     renderOverview();
     renderHoldingReference();
+    renderGlobalMarkets();
     renderNotices();
     renderHighlights();
     byId("temperature-chart").innerHTML = chartMarkup(records(state.temperature, "temperature"), "溫度趨勢");
