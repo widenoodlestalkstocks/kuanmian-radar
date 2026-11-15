@@ -3,6 +3,38 @@
 (() => {
   const state = { radar: null, temperature: null, updateStatus: null, errors: {}, busy: false, industryMode: "ranking", radarSelection: null };
   const byId = (id) => document.getElementById(id);
+  let radarPlot = null, radarPlotObserver = null, radarLayoutFrame = null;
+  function scheduleRadarClearance() {
+    if (typeof requestAnimationFrame !== "function" || radarLayoutFrame !== null) return;
+    radarLayoutFrame = requestAnimationFrame(() => {
+      radarLayoutFrame = null;
+      const plot = radarPlot;
+      if (!plot || typeof plot.getBoundingClientRect !== "function") return;
+      const bounds = plot.getBoundingClientRect();
+      if (bounds.width <= 0 || bounds.height <= 0) return;
+      let topOverflow = 0, bottomOverflow = 0;
+      plot.querySelectorAll(".radar-axis-label").forEach((label) => {
+        const rect = label.getBoundingClientRect();
+        topOverflow = Math.max(topOverflow, bounds.top - rect.top);
+        bottomOverflow = Math.max(bottomOverflow, rect.bottom - bounds.bottom);
+      });
+      const top = `${Math.max(29, Math.ceil(topOverflow + 20))}px`;
+      const bottom = `${Math.max(45, Math.ceil(bottomOverflow + 20))}px`;
+      if (plot.style.marginTop !== top) plot.style.marginTop = top;
+      if (plot.style.marginBottom !== bottom) plot.style.marginBottom = bottom;
+    });
+  }
+  function observeRadarClearance() {
+    radarPlotObserver?.disconnect();
+    radarPlotObserver = null;
+    radarPlot = byId("radar-comparison").querySelector?.(".radar-plot") ?? null;
+    if (!radarPlot) return;
+    if (typeof ResizeObserver === "function") {
+      radarPlotObserver = new ResizeObserver(scheduleRadarClearance);
+      radarPlotObserver.observe(radarPlot);
+    }
+    scheduleRadarClearance();
+  }
   function setTheme(value, persist = false) {
     const theme = value === "light" ? "light" : "dark";
     document.documentElement.dataset.theme = theme;
@@ -338,6 +370,7 @@
       drawing = `<div class="radar-plot"><svg viewBox="0 0 100 100" role="img" aria-label="${esc(`產業分數比較，最新${dateLabel(latest)}，前次${dateLabel(previous)}。${description}`)}"><g class="radar-grid" aria-hidden="true">${grid}</g>${series("previous")}${series("current")}</svg>${labels}<span class="radar-scale-label radar-scale-zero" aria-hidden="true">0</span><span class="radar-scale-label radar-scale-top" aria-hidden="true">100</span></div>`;
     }
     byId("radar-comparison").innerHTML = selected.length ? `${legend}${drawing}<table class="radar-values"><caption class="sr-only">所選產業的最新與前次分數</caption><thead><tr><th scope="col">產業</th><th scope="col">最新<br>${esc(shortDate(latest))}</th><th scope="col">前次<br>${esc(shortDate(previous))}</th></tr></thead><tbody>${rowsMarkup}</tbody></table><p class="radar-comparison-caption">同一批產業、同一個量尺比較。缺少可比紀錄以「—」顯示，圖上不補零。${values.some((row) => row.previous === null) ? "前次資料未齊，灰線暫不繪製；可用分數列在上方。" : ""}${values.some((row) => row.current === null) ? "部分最新分數不足，圖形不補點。" : ""}</p>` : drawing;
+    observeRadarClearance();
   }
 
   function industryTrendMarkup(industry) {
@@ -436,6 +469,7 @@
       if (selected && focus) button.focus();
     });
     byId("view-navigation").scrollIntoView?.({ block: "start", behavior: "auto" });
+    scheduleRadarClearance();
   }
 
   document.querySelectorAll("[data-view]").forEach((button) => {
@@ -473,5 +507,8 @@
   ["ranking", "change", "radar"].forEach((mode) => byId(`industry-mode-${mode}`).addEventListener("click", () => { state.industryMode = mode; renderIndustry(); }));
   byId("brief-industry-button").addEventListener("click", () => { state.industryMode = "change"; renderIndustry(); activateView("industry", true); });
   byId("refresh-button").addEventListener("click", load);
+  if (typeof window !== "undefined") window.addEventListener("resize", scheduleRadarClearance);
+  document.fonts?.ready?.then(scheduleRadarClearance);
+  document.fonts?.addEventListener?.("loadingdone", scheduleRadarClearance);
   load();
 })();
