@@ -1,8 +1,8 @@
 "use strict";
 
 (() => {
-  const APP_VERSION = "20261116-24";
-  const state = { radar: null, temperature: null, updateStatus: null, errors: {}, busy: false, view: "market", industryMode: "ranking", radarSelection: null, expandedIndustries: new Set(), globalFilter: "focus" };
+  const APP_VERSION = "20261116-25";
+  const state = { radar: null, temperature: null, updateStatus: null, errors: {}, busy: false, view: "market", industryMode: "ranking", radarSelection: null, expandedIndustries: new Set(), globalFilter: "focus", watchedIndustries: [], watchedMessage: "" };
   const byId = (id) => document.getElementById(id);
   let radarPlot = null, radarPlotObserver = null, radarLayoutFrame = null;
   function scheduleRadarClearance() {
@@ -103,7 +103,7 @@
   };
 
   const fixedDisclosures = ["global-market-content", "chips-institutional", "chips-futures"];
-  const nativeDetailIds = ["radar-picker", "temperature-history-details", "radar-history-details"];
+  const nativeDetailIds = ["radar-picker", "temperature-history-details", "radar-history-details", "industry-highlight-details"];
   const handoffKey = "kuanmian-ui-handoff";
   let interactionSerial = 0, initialHandoff = null;
   if (typeof window !== "undefined") {
@@ -112,6 +112,28 @@
   function validPublicName(value) {
     return typeof value === "string" && value.length > 0 && value.length <= 60 && !/[\r\n\t\u0000-\u001f]/.test(value);
   }
+  const watchedKey = "kuanmian-watched-industries";
+  let watchedStorageAvailable = true;
+  function readWatchedIndustries() {
+    let raw;
+    try {
+      raw = localStorage.getItem(watchedKey);
+    } catch { watchedStorageAvailable = false; return []; }
+    try {
+      if (raw === null) return [];
+      if (typeof raw !== "string" || raw.length > 2048) return [];
+      const saved = JSON.parse(raw);
+      if (!isObject(saved) || saved.schema !== 1 || Object.keys(saved).some((key) => !["schema", "names"].includes(key)) || !Array.isArray(saved.names) || saved.names.length > 5 || saved.names.some((name) => !validPublicName(name) || name.trim() !== name || !name.trim()) || new Set(saved.names).size !== saved.names.length) return [];
+      return saved.names;
+    } catch { return []; }
+  }
+  function persistWatchedIndustries() {
+    try {
+      localStorage.setItem(watchedKey, JSON.stringify({ schema: 1, names: state.watchedIndustries }));
+      watchedStorageAvailable = true;
+    } catch { watchedStorageAvailable = false; }
+  }
+  state.watchedIndustries = readWatchedIndustries();
   function captureReadingState() {
     const disclosures = {}, nativeDetails = {};
     fixedDisclosures.forEach((id) => { disclosures[id] = byId(id)?.hidden === false; });
@@ -153,6 +175,7 @@
   function focusDescriptor() {
     const active = document.activeElement;
     if (!active) return null;
+    if (validPublicName(active.dataset?.watchName)) return { watch: active.dataset.watchName, action: active.dataset.watchToggle !== undefined ? "toggle" : active.dataset.watchRemove !== undefined ? "remove" : "open" };
     if (validPublicName(active.dataset?.industryName)) return { industry: active.dataset.industryName };
     if (active.dataset?.radarSelect !== undefined) {
       const name = industryRows()[Number(active.dataset.radarSelect)]?.name;
@@ -164,6 +187,10 @@
     if (!descriptor) return;
     let target = descriptor.id ? byId(descriptor.id) : null;
     if (descriptor.industry) target = [...document.querySelectorAll("[data-industry-name]")].find((button) => button.dataset.industryName === descriptor.industry);
+    if (descriptor.watch) {
+      const attribute = descriptor.action === "toggle" ? "data-watch-toggle" : descriptor.action === "remove" ? "data-watch-remove" : "data-watch-open";
+      target = [...document.querySelectorAll(`[${attribute}]`)].find((button) => button.dataset.watchName === descriptor.watch) || byId("watched-title");
+    }
     if (descriptor.radar) target = [...document.querySelectorAll("[data-radar-select]")].find((button) => industryRows()[Number(button.dataset.radarSelect)]?.name === descriptor.radar);
     if (target && !target.hidden && !target.disabled) target.focus?.({ preventScroll: true });
   }
@@ -384,14 +411,95 @@
       isObject(row) && kinds.includes(row.kind) && dateKey(row.asOf) === observed && observed &&
       typeof row.title === "string" && row.title.trim() && row.title.length <= 80 &&
       typeof row.detail === "string" && row.detail.trim() && row.detail.length <= 260).slice(0, 3);
-    byId("latest-highlights").dataset.empty = String(rows.length === 0);
-    byId("highlights-title").parentElement?.parentElement?.setAttribute("data-empty", String(rows.length === 0));
-    text("highlights-date", rows.length ? `資料日：${dateLabel(observed)}` : "");
-    text("highlights-status", radarUpdateNote() || (rows.length ? "從已保存的結果整理，每項變化都有數字可對照。" : "比較資料累積中，有前次紀錄後就會顯示變化。"));
+    const details = byId("industry-highlight-details");
+    if (details) details.hidden = !rows.length;
+    if (byId("industry-highlights-date")) text("industry-highlights-date", rows.length ? `資料日：${dateLabel(observed)}` : "");
+    if (byId("industry-highlights-status")) text("industry-highlights-status", radarUpdateNote() || (rows.length ? "依已保存的產業結果整理。" : "比較資料累積中，有前次紀錄後就會顯示變化。"));
     byId("highlight-list").innerHTML = rows.length ? rows.map((row, index) =>
       `<article class="highlight-row"><span class="highlight-index" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span><div><h3>${esc(row.title)}</h3><p>${esc(row.detail)}</p></div></article>`).join("") :
       "";
     byId("brief-industry-button").hidden = !rows.length;
+  }
+
+  function dataHealthNote(kind, observed) {
+    const age = daysOld(observed), component = state.updateStatus?.components?.[kind], messages = [];
+    if (!observed || age === null || age < 0) return "資料日期待確認。";
+    if (state.errors[kind]) messages.push("暫時無法更新，目前顯示已保存資料。");
+    else if (component?.status === "failed") messages.push("更新未完成，目前顯示已保存資料。");
+    else if (component?.status === "running") messages.push("更新中，目前顯示已保存資料。");
+    const expected = kind === "temperature" ? temperatureDate() : dateKey(state.radar?.asOf);
+    if (state.errors.updateStatus || !["success", "failed", "running"].includes(component?.status) || !expected || dateKey(component?.asOf) !== expected) messages.push("更新狀態待確認，請以資料日為準。");
+    if (age > 7) messages.push("資料較久未更新，請留意原資料日。");
+    return messages.join(" ");
+  }
+  function chipHealthNote(observed) { return dataHealthNote("temperature", observed); }
+  function institutionalDays() {
+    const chips = isObject(state.temperature?.chips) ? state.temperature.chips : {}, cap = dateKey(chips.asOf);
+    const dates = new Map(), duplicates = new Set();
+    (Array.isArray(chips.institutional) ? chips.institutional : []).slice(0, 500).forEach((row) => {
+      if (!isObject(row)) return;
+      const date = dateKey(row.date), age = daysOld(date);
+      if (!date || age === null || age < 0 || (cap && date > cap)) return;
+      if (dates.has(date)) duplicates.add(date);
+      dates.set(date, { date, foreign: number(row.foreign), trust: number(row.trust), dealer: number(row.dealer) });
+    });
+    return [...dates.values()].filter((row) => !duplicates.has(row.date)).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+  }
+  function institutionalSummary() {
+    const days = institutionalDays();
+    return { days, count: days.length, latest: days[0]?.date ?? null, oldest: days.at(-1)?.date ?? null,
+      institutions: [["foreign", "外資"], ["trust", "投信"], ["dealer", "自營商"]].map(([key, label]) => {
+        const complete = days.length > 0 && days.every((row) => row[key] !== null);
+        const sum = complete ? days.reduce((total, row) => total + row[key], 0) : null;
+        return { key, label, total: Number.isFinite(sum) ? sum : null, buyDays: complete ? days.filter((row) => row[key] > 0).length : null };
+      }) };
+  }
+  function institutionalDirection(label, value) {
+    return value === null ? `${label}資料暫缺` : value === 0 ? `${label}約持平（0億元）` : `${label}${value > 0 ? "買超" : "賣超"}約${fmt(Math.abs(value), 2)}億元`;
+  }
+  function futuresSnapshot() {
+    const chips = isObject(state.temperature?.chips) ? state.temperature.chips : {};
+    const source = isObject(chips.foreignFutures) ? chips.foreignFutures : {}, observed = dateKey(source.asOf), age = daysOld(observed);
+    const cap = dateKey(chips.asOf);
+    const rawNet = number(source.net), rawChange = number(source.change), dateValid = observed !== null && age !== null && age >= 0 && (!cap || observed <= cap);
+    const net = dateValid && Number.isSafeInteger(rawNet) ? rawNet : null;
+    const change = net !== null && Number.isSafeInteger(rawChange) && Number.isSafeInteger(net - rawChange) ? rawChange : null;
+    return { asOf: dateValid ? observed : null, net, change, position: net === null || net === 0 ? "淨部位" : net < 0 ? "淨空單" : "淨多單", movement: futuresMovement(net, change) };
+  }
+  function dailyBriefRows() {
+    const thermalDate = temperatureDate(), radarDate = dateKey(state.radar?.asOf);
+    const thermalAge = daysOld(thermalDate), radarAge = daysOld(radarDate);
+    const thermalObserved = thermalAge !== null && thermalAge >= 0 ? thermalDate : null, radarObserved = radarAge !== null && radarAge >= 0 ? radarDate : null;
+    const thermal = thermalAge !== null && thermalAge >= 0 ? overviewScore(latestTemperature()?.temperature) : null;
+    const radar = state.radar?.status !== "unavailable" && radarAge !== null && radarAge >= 0 ? overviewScore(state.radar?.score) : null;
+    const history = new Map(), seenDates = new Set(), duplicateDates = new Set();
+    (Array.isArray(state.temperature?.history) ? state.temperature.history : []).slice(0, 1000).forEach((row) => {
+      const date = isObject(row) ? dateKey(row.date) : null, score = isObject(row) ? overviewScore(row.temperature) : null;
+      if (!date || !thermalDate || date >= thermalDate) return;
+      if (seenDates.has(date)) duplicateDates.add(date);
+      seenDates.add(date);
+      if (score === null) return;
+      history.set(date, score);
+    });
+    const previousDate = [...history.keys()].filter((date) => !duplicateDates.has(date)).sort().at(-1);
+    const difference = thermal !== null && previousDate ? Math.round((thermal - history.get(previousDate)) * 100) / 100 : null;
+    const thermalFact = thermal === null ? "籌碼溫度暫缺" : difference === null ? `籌碼${fmt(thermal)}°C，${marketState().slice(0, 40)}` : `籌碼溫度較${shortDate(previousDate)}${difference === 0 ? "持平" : `${difference > 0 ? "上升" : "下降"}${fmt(Math.abs(difference))}°C`}`;
+    const market = [thermalFact, radar === null ? "資金分數暫缺" : `資金${briefText(state.radar?.state, "觀察").slice(0, 40)}`].join("；");
+    const notes = [thermal !== null || (thermalDate && !thermalObserved) ? dataHealthNote("temperature", thermalDate) : "", radar !== null || (radarDate && !radarObserved) ? dataHealthNote("radar", radarDate) : ""].filter(Boolean);
+    const institutional = institutionalDays(), latest = institutional[0], futures = futuresSnapshot();
+    return [
+      { kind: "market", title: "大盤與資金", detail: market, date: thermalObserved && thermalObserved === radarObserved ? `資料日：${dateLabel(thermalObserved)}` : `籌碼資料日：${dateLabel(thermalObserved)}／資金資料日：${dateLabel(radarObserved)}`, note: [...new Set(notes)].join(" ") },
+      { kind: "institutional", title: "最新法人動向", detail: latest ? `${institutionalDirection("外資", latest.foreign)}；${institutionalDirection("投信", latest.trust)}` : "法人資料尚未取得。", date: `資料日：${dateLabel(latest?.date)}`, note: latest ? chipHealthNote(latest.date) : "" },
+      { kind: "futures", title: "外資台指期變化", detail: futures.net === null ? "外資台指期資料尚未取得。" : `${futures.net === 0 ? "目前淨部位0口" : `${futures.position}${fmt(Math.abs(futures.net), 0)}口`}；${futures.movement}`, date: `資料日：${dateLabel(futures.asOf)}`, note: futures.net === null ? "" : chipHealthNote(futures.asOf) }
+    ];
+  }
+  function renderDailyBrief() {
+    const list = byId("daily-brief-list");
+    if (!list) return;
+    text("highlights-title", "寬麵每日三件事");
+    text("highlights-date", "以各項資料日為準");
+    text("highlights-status", "先看最新狀態，再點開完整資料。");
+    list.innerHTML = dailyBriefRows().map((row, index) => `<article class="highlight-row" data-brief-kind="${row.kind}"><span class="highlight-index" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span><div><h3>${esc(row.title)}</h3><p>${esc(row.detail)}</p><p class="daily-brief-date">${esc(row.date)}</p>${row.note ? `<p class="daily-brief-note">${esc(row.note)}</p>` : ""}</div></article>`).join("");
   }
 
   function chartMarkup(input, label, kind = "temperature", limit = 60) {
@@ -435,22 +543,16 @@
   }
 
   function renderChips() {
-    const chips = isObject(state.temperature?.chips) ? state.temperature.chips : {};
-    const dates = new Map();
-    (Array.isArray(chips.institutional) ? chips.institutional : []).forEach((row) => {
-      if (!isObject(row)) return;
-      const date = dateKey(row.date);
-      if (date) dates.set(date, { date, foreign: number(row.foreign), trust: number(row.trust), dealer: number(row.dealer) });
-    });
-    const days = [...dates.values()].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
-    byId("chips-institutional").innerHTML = days.length ? `<p class="chips-intro">＋買超、－賣超，單位：億元${days.length < 5 ? `・目前有 ${days.length} 個交易日資料` : ""}</p><div class="chips-day-list">${days.map((row) => `<article class="chips-day"><h3><time datetime="${row.date}">${esc(dateLabel(row.date))}</time></h3><dl class="chips-institution-values"><div><dt>外資</dt><dd>${esc(signed(row.foreign, ""))}</dd></div><div><dt>投信</dt><dd>${esc(signed(row.trust, ""))}</dd></div><div><dt>自營商</dt><dd>${esc(signed(row.dealer, ""))}</dd></div></dl></article>`).join("")}</div>` : `<p class="empty-state">尚未取得近5交易日的法人買賣超資料。</p>`;
+    const summary = institutionalSummary(), days = summary.days, note = summary.latest ? chipHealthNote(summary.latest) : "";
+    const headline = summary.institutions.slice(0, 2).map((row) => institutionalDirection(row.label, row.total)).join("；");
+    if (byId("institutional-toggle-summary")) text("institutional-toggle-summary", days.length ? `近${days.length}日：${headline}。${note ? "請留意更新狀態。" : ""}` : "資料尚未取得");
+    const summaryMarkup = days.length ? `<section class="chips-summary" aria-label="法人期間合計"><h3>近${days.length}個交易日合計</h3><p class="chips-summary-range">${esc(dateLabel(summary.oldest))}${days.length > 1 ? ` 至 ${esc(dateLabel(summary.latest))}` : ""}</p><dl class="chips-summary-values">${summary.institutions.map((row) => `<div><dt>${row.label}</dt><dd><strong class="chips-summary-value">${esc(institutionalDirection("", row.total))}</strong><span class="chips-summary-days">${row.buyDays === null ? "期間資料未齊，暫不合計" : `買超${row.buyDays}／${days.length}日`}</span></dd></div>`).join("")}</dl><p class="chips-summary-note">依每日公開數值加總；因四捨五入，合計以約數顯示。</p>${note ? `<p class="chips-summary-note">${esc(note)}</p>` : ""}</section>` : "";
+    byId("chips-institutional").innerHTML = days.length ? `${summaryMarkup}<p class="chips-intro">每日明細：＋買超、－賣超，單位：億元${days.length < 5 ? `・目前有 ${days.length} 個交易日資料` : ""}</p><div class="chips-day-list">${days.map((row) => `<article class="chips-day"><h3><time datetime="${row.date}">${esc(dateLabel(row.date))}</time></h3><dl class="chips-institution-values"><div><dt>外資</dt><dd>${esc(signed(row.foreign, ""))}</dd></div><div><dt>投信</dt><dd>${esc(signed(row.trust, ""))}</dd></div><div><dt>自營商</dt><dd>${esc(signed(row.dealer, ""))}</dd></div></dl></article>`).join("")}</div>` : `<p class="empty-state">尚未取得近5交易日的法人買賣超資料。</p>`;
 
-    const futures = isObject(chips.foreignFutures) ? chips.foreignFutures : {};
-    const net = number(futures.net), change = number(futures.change);
-    const position = net === null ? "淨部位" : net < 0 ? "淨空單" : net > 0 ? "淨多單" : "淨部位";
+    const futures = futuresSnapshot(), { net, change, position } = futures, futuresNote = net === null ? "" : chipHealthNote(futures.asOf);
     text("chips-futures-title", net === null ? "外資台指期淨空單" : `外資台指期${position}`);
-    byId("chips-futures").innerHTML = `<dl class="chips-result-grid"><div><dt>目前${position}</dt><dd>${net === null ? "—" : `${esc(fmt(Math.abs(net), 0))}<span class="chips-result-unit">口</span>`}</dd></div><div><dt>較前日變化</dt><dd class="chips-movement">${esc(futuresMovement(net, change))}</dd></div></dl><p class="chips-result-date">資料日：${dateKey(futures.asOf) ? esc(dateLabel(futures.asOf)) : "尚未取得"}</p>${net === null ? `<p class="chips-missing">尚未取得外資台指期淨部位。</p>` : ""}`;
-
+    if (byId("futures-toggle-summary")) text("futures-toggle-summary", net === null ? "資料尚未取得" : `${futures.movement}。${futuresNote ? "請留意更新狀態。" : ""}`);
+    byId("chips-futures").innerHTML = `<dl class="chips-result-grid"><div><dt>目前${position}</dt><dd>${net === null ? "—" : `${esc(fmt(Math.abs(net), 0))}<span class="chips-result-unit">口</span>`}</dd></div><div><dt>較前日變化</dt><dd class="chips-movement">${esc(futuresMovement(net, change))}</dd></div></dl><p class="chips-result-date">資料日：${futures.asOf ? esc(dateLabel(futures.asOf)) : "尚未取得"}</p>${futuresNote ? `<p class="chips-summary-note">${esc(futuresNote)}</p>` : ""}${net === null ? `<p class="chips-missing">尚未取得外資台指期淨部位。</p>` : ""}`;
   }
 
   function industryDeltaMarkup(row) {
@@ -474,6 +576,59 @@
     }).slice(0, 10).map((row, index) => ({ ...row, publicRank: index + 1 }));
   }
 
+  function renderWatchedIndustries(rows = industryRows()) {
+    const list = byId("watched-industry-list");
+    if (!list) return;
+    const observed = dateKey(state.radar?.asOf), age = daysOld(observed);
+    const knownPeriod = isObject(state.radar) && state.radar.status !== "unavailable" && observed && age !== null && age >= 0;
+    const status = [`已關注${state.watchedIndustries.length}／5個`, state.watchedMessage, watchedStorageAvailable ? "" : "此瀏覽器無法保存，僅本次開啟有效。", state.watchedIndustries.length ? radarUpdateNote(true) : ""].filter(Boolean).join(" ");
+    text("watched-industry-status", status);
+    list.innerHTML = state.watchedIndustries.length ? state.watchedIndustries.map((name, index) => {
+      const row = rows.find((item) => item.name === name), rowDate = dateKey(row?.asOf ?? observed), rowAge = daysOld(rowDate);
+      const score = row && knownPeriod && rowDate === observed && rowAge !== null && rowAge >= 0 ? overviewScore(row.score) : null;
+      const unavailable = !knownPeriod ? "本次資料暫缺" : !row ? "本期未列前10" : score === null ? "分數暫缺" : "";
+      const content = `<span class="watched-name">${esc(name)}</span><span class="watched-value">${score === null ? "—" : `${esc(fmt(score))}分`}</span>${unavailable ? `<span class="watched-status">${unavailable}</span>` : `<span class="watched-status">${esc(shortDate(rowDate))}・點開看細項</span>`}`;
+      return `<article class="watched-item">${row ? `<button class="watched-open" type="button" data-watch-open="${index}" data-watch-name="${esc(name)}" aria-label="查看${esc(name)}細項">${content}</button>` : `<div class="watched-open watched-missing">${content}</div>`}<button class="watched-remove" type="button" data-watch-remove="${index}" data-watch-name="${esc(name)}" aria-label="移除關注${esc(name)}">移除</button></article>`;
+    }).join("") : `<p class="watched-empty">在下方產業按「關注」，下次就能先找到它。</p>`;
+  }
+  function toggleWatchedIndustry(name, anchor = null) {
+    if (!validPublicName(name)) return false;
+    const existing = state.watchedIndustries.indexOf(name);
+    state.watchedMessage = "";
+    if (existing >= 0) state.watchedIndustries.splice(existing, 1);
+    else {
+      if (!industryRows().some((row) => row.name === name)) return false;
+      if (state.watchedIndustries.length >= 5) {
+        state.watchedMessage = "最多關注5個，先移除一個再加入。";
+        renderWatchedIndustries();
+        return false;
+      }
+      state.watchedIndustries.push(name);
+    }
+    const oldTop = anchor?.getBoundingClientRect?.().top;
+    const oldScroll = typeof window === "undefined" ? 0 : window.scrollY;
+    persistWatchedIndustries();
+    renderIndustry();
+    if (anchor) {
+      const target = [...document.querySelectorAll("[data-watch-toggle]")].find((button) => button.dataset.watchName === name);
+      target?.focus?.({ preventScroll: true });
+      const newTop = target?.getBoundingClientRect?.().top;
+      if (typeof window !== "undefined" && Number.isFinite(oldTop) && Number.isFinite(newTop)) window.scrollTo?.({ top: Math.max(0, oldScroll + newTop - oldTop), behavior: "auto" });
+    }
+    return true;
+  }
+  function openWatchedIndustry(index) {
+    const name = Number.isInteger(index) && index >= 0 && index < 5 ? state.watchedIndustries[index] : null;
+    if (!name || !industryRows().some((row) => row.name === name)) return;
+    state.industryMode = "ranking";
+    state.expandedIndustries.add(name);
+    renderIndustry();
+    activateView("industry", false, false);
+    const target = [...document.querySelectorAll("[data-industry-name]")].find((button) => button.dataset.industryName === name);
+    target?.focus?.({ preventScroll: true });
+    (target?.parentElement || target)?.scrollIntoView?.({ block: "start", behavior: "auto" });
+  }
+
   function industryRankingMarkup(row) {
     const ranking = isObject(row.ranking) ? row.ranking : {};
     let label = "", status = "unavailable";
@@ -489,6 +644,7 @@
 
   function renderIndustry() {
     const rows = industryRows();
+    renderWatchedIndustries(rows);
     state.expandedIndustries = new Set([...state.expandedIndustries].filter((name) => rows.some((row) => row.name === name)));
     const ordered = state.industryMode === "change" ? [...rows].sort((a, b) => {
       const left = number(a.scoreChange), right = number(b.scoreChange);
@@ -509,7 +665,9 @@
     byId("industry-list").innerHTML = ordered.length ? ordered.map((row) => {
       const id = `industry-detail-${row.publicRank - 1}`;
       const expanded = state.expandedIndustries.has(row.name);
-      return `<article class="industry-item"><button class="industry-toggle" type="button" aria-expanded="${expanded}" aria-controls="${id}" data-disclosure="${id}" data-industry-name="${esc(row.name)}"><span class="industry-rank">${row.publicRank}</span><span class="industry-heading"><span class="industry-name">${esc(briefText(row.name, "未命名產業"))}</span>${industryRankingMarkup(row)}</span><span class="industry-metrics"><span class="industry-score" aria-label="${esc(`資金分數 ${fmt(row.score)} 分`)}">${esc(fmt(row.score))}<span class="industry-score-unit" aria-hidden="true">分</span></span>${industryDeltaMarkup(row)}</span><span class="disclosure-symbol" aria-hidden="true">${expanded ? "−" : "＋"}</span></button><div class="industry-detail" id="${id}"${expanded ? "" : " hidden"}>${industryTrendMarkup(row)}<dl class="detail-grid"><div><dt>產業資金分數</dt><dd>${esc(fmt(row.score))}${number(row.score) === null ? "" : " 分"}</dd></div><div><dt>資金分數較前次</dt><dd>${esc(signed(row.scoreChange, " 分"))}</dd></div><div><dt>產業平均日漲跌</dt><dd>${esc(signed(row.change, "%"))}</dd></div></dl><p class="detail-source">產業資料日：${esc(dateLabel(row.asOf ?? state.radar?.asOf))}</p></div></article>`;
+      const watched = state.watchedIndustries.includes(row.name);
+      const watchButton = validPublicName(row.name) ? `<button class="industry-watch-button" type="button" data-watch-toggle="${row.publicRank - 1}" data-watch-name="${esc(row.name)}" aria-pressed="${watched}" aria-label="${watched ? "取消關注" : "關注"}${esc(row.name)}">${watched ? "已關注" : "關注"}</button>` : "";
+      return `<article class="industry-item"><div class="industry-item-heading"><button class="industry-toggle" type="button" aria-expanded="${expanded}" aria-controls="${id}" data-disclosure="${id}" data-industry-name="${esc(row.name)}"><span class="industry-rank">${row.publicRank}</span><span class="industry-heading"><span class="industry-name">${esc(briefText(row.name, "未命名產業"))}</span>${industryRankingMarkup(row)}</span><span class="industry-metrics"><span class="industry-score" aria-label="${esc(`資金分數 ${fmt(row.score)} 分`)}">${esc(fmt(row.score))}<span class="industry-score-unit" aria-hidden="true">分</span></span>${industryDeltaMarkup(row)}</span><span class="disclosure-symbol" aria-hidden="true">${expanded ? "−" : "＋"}</span></button>${watchButton}</div><div class="industry-detail" id="${id}"${expanded ? "" : " hidden"}>${industryTrendMarkup(row)}<dl class="detail-grid"><div><dt>產業資金分數</dt><dd>${esc(fmt(row.score))}${number(row.score) === null ? "" : " 分"}</dd></div><div><dt>資金分數較前次</dt><dd>${esc(signed(row.scoreChange, " 分"))}</dd></div><div><dt>產業平均日漲跌</dt><dd>${esc(signed(row.change, "%"))}</dd></div></dl><p class="detail-source">產業資料日：${esc(dateLabel(row.asOf ?? state.radar?.asOf))}</p></div></article>`;
     }).join("") : `<p class="empty-state">資料暫時無法提供，請稍後再查看。</p>`;
     renderIndustryRadar(rows);
   }
@@ -624,6 +782,7 @@
     renderHoldingReference();
     renderGlobalMarkets();
     renderNotices();
+    renderDailyBrief();
     renderHighlights();
     byId("temperature-chart").innerHTML = chartMarkup(records(state.temperature, "temperature"), "溫度趨勢");
     renderChips();
@@ -700,6 +859,25 @@
     });
   });
   document.addEventListener("click", (event) => {
+    const watchedToggle = event.target.closest("[data-watch-toggle]");
+    if (watchedToggle) {
+      const index = /^\d$/.test(watchedToggle.dataset.watchToggle) ? Number(watchedToggle.dataset.watchToggle) : -1;
+      const row = industryRows()[index];
+      if (row) toggleWatchedIndustry(row.name, watchedToggle);
+      return;
+    }
+    const watchedRemove = event.target.closest("[data-watch-remove]");
+    if (watchedRemove) {
+      const index = /^[0-4]$/.test(watchedRemove.dataset.watchRemove) ? Number(watchedRemove.dataset.watchRemove) : -1;
+      const name = state.watchedIndustries[index];
+      if (name) { toggleWatchedIndustry(name); byId("watched-title")?.focus?.({ preventScroll: true }); }
+      return;
+    }
+    const watchedOpen = event.target.closest("[data-watch-open]");
+    if (watchedOpen) {
+      if (/^[0-4]$/.test(watchedOpen.dataset.watchOpen)) openWatchedIndustry(Number(watchedOpen.dataset.watchOpen));
+      return;
+    }
     const selector = event.target.closest("[data-radar-select]");
     if (selector) {
       const row = industryRows()[Number(selector.dataset.radarSelect)];

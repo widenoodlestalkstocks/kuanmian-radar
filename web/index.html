@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta id="theme-color" name="theme-color" content="#080A0B">
-    <meta name="kuanmian-ui-version" content="20261116-24">
+    <meta name="kuanmian-ui-version" content="20261116-25">
     <meta name="description" content="寬麵說股：一起看懂大盤籌碼溫度、產業資金與歷史變化。">
     <title>寬麵說股｜大盤與資金雷達</title>
     <script>
@@ -19,8 +19,8 @@
         document.getElementById("theme-color").setAttribute("content", theme === "light" ? "#F5F1E9" : "#080A0B");
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=20261116-24">
-    <script src="./app.js?v=20261116-24" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=20261116-25">
+    <script src="./app.js?v=20261116-25" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要內容</a>
@@ -92,10 +92,16 @@
         </details>
 
         <section id="latest-highlights" class="latest-highlights" aria-labelledby="highlights-title">
-          <div class="brief-heading"><div><p class="eyebrow">從這次變化開始看</p><h2 id="highlights-title">這次看這裡</h2></div><p id="highlights-date" class="section-date">資料日：—</p></div>
+          <div class="brief-heading"><div><p class="eyebrow">先把市場重點看清楚</p><h2 id="highlights-title">寬麵每日三件事</h2></div><p id="highlights-date" class="section-date">依各項資料日</p></div>
           <p id="highlights-status" class="brief-status"></p>
-          <div id="highlight-list" class="highlight-list"><p class="empty-state">正在整理已保存的變化…</p></div>
-          <button id="brief-industry-button" class="brief-action" type="button">看產業變化 <span aria-hidden="true">→</span></button>
+          <div id="daily-brief-list" class="highlight-list daily-brief-list"><p class="empty-state">正在整理市場重點…</p></div>
+          <details id="industry-highlight-details" class="industry-highlight-details" hidden>
+            <summary>產業變化重點</summary>
+            <p id="industry-highlights-date" class="section-date"></p>
+            <p id="industry-highlights-status" class="brief-status"></p>
+            <div id="highlight-list" class="highlight-list"></div>
+            <button id="brief-industry-button" class="brief-action" type="button">看產業變化 <span aria-hidden="true">→</span></button>
+          </details>
         </section>
 
         <section class="global-section" aria-label="全球市場行情">
@@ -126,11 +132,11 @@
             <div class="section-heading"><div><p class="eyebrow">點開看近期變化</p><h2 id="chips-title">籌碼近況</h2></div></div>
             <div class="chips-disclosures">
               <article class="chips-disclosure">
-                <button class="chips-toggle" type="button" aria-expanded="false" aria-controls="chips-institutional" data-disclosure="chips-institutional"><span>法人近5交易日</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button>
+                <button class="chips-toggle" type="button" aria-expanded="false" aria-controls="chips-institutional" data-disclosure="chips-institutional"><span class="chips-toggle-copy"><span>法人近5交易日</span><span id="institutional-toggle-summary" class="chips-toggle-summary">正在整理近期動向…</span></span><span class="disclosure-symbol" aria-hidden="true">＋</span></button>
                 <div id="chips-institutional" class="chips-content" hidden><p class="empty-state">尚未取得資料。</p></div>
               </article>
               <article class="chips-disclosure">
-                <button class="chips-toggle" type="button" aria-expanded="false" aria-controls="chips-futures" data-disclosure="chips-futures"><span id="chips-futures-title">外資台指期淨空單</span><span class="disclosure-symbol" aria-hidden="true">＋</span></button>
+                <button class="chips-toggle" type="button" aria-expanded="false" aria-controls="chips-futures" data-disclosure="chips-futures"><span class="chips-toggle-copy"><span id="chips-futures-title">外資台指期淨空單</span><span id="futures-toggle-summary" class="chips-toggle-summary">正在整理口數變化…</span></span><span class="disclosure-symbol" aria-hidden="true">＋</span></button>
                 <div id="chips-futures" class="chips-content" hidden><p class="empty-state">尚未取得資料。</p></div>
               </article>
             </div>
@@ -141,6 +147,11 @@
           <div class="section-heading"><div><p id="industry-eyebrow" class="eyebrow">產業資金觀察</p><h2 id="industry-title">細產業資金前 10</h2></div><p id="industry-date" class="section-date">資料日：—</p></div>
           <p id="industry-description" class="section-description">只列資金分數前 10 個細產業，點開看產業變化。</p>
           <p id="industry-update-note" class="industry-update-note" role="status"></p>
+          <section id="watched-industries" class="watched-industries" aria-labelledby="watched-title">
+            <div class="watched-heading"><h3 id="watched-title" tabindex="-1">我關注的產業</h3><p id="watched-industry-note">從下方點「關注」，同一瀏覽器最多記住5個。</p></div>
+            <p id="watched-industry-status" class="watched-industry-status" role="status" aria-live="polite"></p>
+            <div id="watched-industry-list" class="watched-industry-list"><p class="watched-empty">先選你常看的產業，下次就容易找到。</p></div>
+          </section>
           <div class="industry-modes" role="group" aria-label="產業查看方式">
             <button id="industry-mode-ranking" type="button" aria-pressed="true">看排名</button>
             <button id="industry-mode-change" type="button" aria-pressed="false">看升降</button>
@@ -187,6 +198,7 @@
           <summary>網站更新紀錄 <span>2026/11/16</span></summary>
           <div class="release-content">
             <p class="release-caption">功能維護與市場資料日期分開記錄。</p>
+            <article><time datetime="2026-11-16">11/16</time><p>新增寬麵每日三件事、法人近期合計與收合摘要；產業可按「關注」記在同一瀏覽器，掉出本期前10時會明確標示。</p></article>
             <article><time datetime="2026-11-16">11/16</time><p>首頁先看市場日期、大盤與資金結果及參考水位；加入可保存的大字選擇、白話數字說明與市場分類。刷新保留展開內容，後續新版提供更新提醒。</p></article>
             <article><time datetime="2026-11-15">11/15</time><p>新增可展開的全球市場，查看原油、黃金、VIX 與各國指數的漲跌長條、價格及資料日。入口提前、最新變化摘要、產業名次變動與雷達比較上線；新增累計與今日瀏覽量，首頁換上黑袍持刀浪客。</p></article>
             <article><time datetime="2026-11-14">11/14</time><p>加入產業近5筆走勢、分數升降標示，恢復模型參考持股水位，並調整手機閱讀間距。</p></article>
