@@ -2,6 +2,9 @@ name: Publish fan website
 on:
   push:
     branches: [main]
+  # Independent republish fallback if the earlier Pages deployment failed.
+  schedule:
+    - cron: '43 */3 * * *'
   workflow_dispatch:
 permissions:
   contents: read
@@ -9,10 +12,12 @@ permissions:
   id-token: write
 concurrency:
   group: fan-site-pages
+  queue: max
   cancel-in-progress: false
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
