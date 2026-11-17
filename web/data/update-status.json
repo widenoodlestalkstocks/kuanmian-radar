@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T23:47:32.393216+00:00",
+  "generatedAt": "2026-11-17T01:19:20.598108+00:00",
   "components": {
     "radar": {
-      "status": "success",
-      "attemptedAt": "2026-11-16T02:55:05.439505+00:00",
+      "status": "failed",
+      "attemptedAt": "2026-11-17T01:19:20.598108+00:00",
       "lastSuccessAt": "2026-11-16T02:55:05.439505+00:00",
       "asOf": "2026-11-13",
-      "errorCode": null,
-      "message": null
+      "errorCode": "not-updated",
+      "message": "資料尚未更新"
     },
     "temperature": {
       "status": "success",
