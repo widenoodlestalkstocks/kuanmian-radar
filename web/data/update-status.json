@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T03:02:59.899235+00:00",
+  "generatedAt": "2026-11-18T18:04:18.176553+00:00",
   "components": {
     "radar": {
       "status": "success",
-      "attemptedAt": "2026-11-18T03:02:59.899235+00:00",
-      "lastSuccessAt": "2026-11-18T03:02:59.899235+00:00",
-      "asOf": "2026-11-17",
+      "attemptedAt": "2026-11-18T18:04:18.176553+00:00",
+      "lastSuccessAt": "2026-11-18T18:04:18.176553+00:00",
+      "asOf": "2026-11-18",
       "errorCode": null,
       "message": null
     },
     "temperature": {
       "status": "success",
-      "attemptedAt": "2026-11-17T23:02:05.919165+00:00",
-      "lastSuccessAt": "2026-11-17T23:02:05.919165+00:00",
-      "asOf": "2026-11-17",
+      "attemptedAt": "2026-11-18T18:04:18.176553+00:00",
+      "lastSuccessAt": "2026-11-18T18:04:18.176553+00:00",
+      "asOf": "2026-11-18",
       "errorCode": null,
       "message": null
     }
