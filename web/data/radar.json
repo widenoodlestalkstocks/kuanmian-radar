@@ -1,134 +1,62 @@
 {
   "schemaVersion": 1,
-  "score": 35.35,
+  "score": 33.28,
   "state": "偏空",
   "signal": {
     "tone": "weak",
     "label": "資金偏弱"
   },
-  "asOf": "2026-11-19",
-  "snapshotDate": "2026-11-20",
-  "generatedAt": "2026-11-20T03:04:32.054838+00:00",
+  "asOf": "2026-11-20",
+  "snapshotDate": "2026-11-21",
+  "generatedAt": "2026-11-20T19:09:20.828765+00:00",
   "scoreChange": null,
   "industry": [
     {
+      "name": "電機機械｜輸送機械及零配件",
+      "score": 53.32,
+      "scoreChange": null,
+      "change": 1.67,
+      "asOf": "2026-11-20",
+      "history": [
+        {
+          "date": "2026-11-20",
+          "score": 53.32
+        }
+      ],
+      "ranking": {
+        "status": "unavailable",
+        "previousRank": null,
+        "change": null
+      }
+    },
+    {
+      "name": "軟體服務｜系統整合服務",
+      "score": 49.66,
+      "scoreChange": null,
+      "change": -1.86,
+      "asOf": "2026-11-20",
+      "history": [
+        {
+          "date": "2026-11-20",
+          "score": 49.66
+        }
+      ],
+      "ranking": {
+        "status": "unavailable",
+        "previousRank": null,
+        "change": null
+      }
+    },
+    {
       "name": "隱形眼鏡",
-      "score": 55.57,
+      "score": 47.92,
       "scoreChange": null,
-      "change": 9.01,
-      "asOf": "2026-11-19",
+      "change": -2.41,
+      "asOf": "2026-11-20",
       "history": [
         {
-          "date": "2026-11-19",
-          "score": 55.57
-        }
-      ],
-      "ranking": {
-        "status": "unavailable",
-        "previousRank": null,
-        "change": null
-      }
-    },
-    {
-      "name": "油電燃氣｜天然瓦斯供應",
-      "score": 55.1,
-      "scoreChange": null,
-      "change": -0.35,
-      "asOf": "2026-11-19",
-      "history": [
-        {
-          "date": "2026-11-19",
-          "score": 55.1
-        }
-      ],
-      "ranking": {
-        "status": "unavailable",
-        "previousRank": null,
-        "change": null
-      }
-    },
-    {
-      "name": "航空",
-      "score": 54.32,
-      "scoreChange": null,
-      "change": -1.3,
-      "asOf": "2026-11-19",
-      "history": [
-        {
-          "date": "2026-11-19",
-          "score": 54.32
-        }
-      ],
-      "ranking": {
-        "status": "unavailable",
-        "previousRank": null,
-        "change": null
-      }
-    },
-    {
-      "name": "貿易百貨｜貿易商、代理商、經銷商",
-      "score": 53.7,
-      "scoreChange": null,
-      "change": -0.64,
-      "asOf": "2026-11-19",
-      "history": [
-        {
-          "date": "2026-11-19",
-          "score": 53.7
-        }
-      ],
-      "ranking": {
-        "status": "unavailable",
-        "previousRank": null,
-        "change": null
-      }
-    },
-    {
-      "name": "製藥｜藥品代理銷售及通路",
-      "score": 52.44,
-      "scoreChange": null,
-      "change": -0.68,
-      "asOf": "2026-11-19",
-      "history": [
-        {
-          "date": "2026-11-19",
-          "score": 52.44
-        }
-      ],
-      "ranking": {
-        "status": "unavailable",
-        "previousRank": null,
-        "change": null
-      }
-    },
-    {
-      "name": "電信",
-      "score": 50.78,
-      "scoreChange": null,
-      "change": -0.0,
-      "asOf": "2026-11-19",
-      "history": [
-        {
-          "date": "2026-11-19",
-          "score": 50.78
-        }
-      ],
-      "ranking": {
-        "status": "unavailable",
-        "previousRank": null,
-        "change": null
-      }
-    },
-    {
-      "name": "食品｜原物料",
-      "score": 48.6,
-      "scoreChange": null,
-      "change": -0.75,
-      "asOf": "2026-11-19",
-      "history": [
-        {
-          "date": "2026-11-19",
-          "score": 48.6
+          "date": "2026-11-20",
+          "score": 47.92
         }
       ],
       "ranking": {
@@ -139,14 +67,14 @@
     },
     {
       "name": "紡織",
-      "score": 48.02,
+      "score": 45.69,
       "scoreChange": null,
-      "change": -1.35,
-      "asOf": "2026-11-19",
+      "change": -4.56,
+      "asOf": "2026-11-20",
       "history": [
         {
-          "date": "2026-11-19",
-          "score": 48.02
+          "date": "2026-11-20",
+          "score": 45.69
         }
       ],
       "ranking": {
@@ -156,15 +84,15 @@
       }
     },
     {
-      "name": "食品｜冷凍、罐頭、脫水、醃漬食品",
-      "score": 47.06,
+      "name": "紡織｜染整",
+      "score": 39.25,
       "scoreChange": null,
-      "change": 0.73,
-      "asOf": "2026-11-19",
+      "change": -0.6,
+      "asOf": "2026-11-20",
       "history": [
         {
-          "date": "2026-11-19",
-          "score": 47.06
+          "date": "2026-11-20",
+          "score": 39.25
         }
       ],
       "ranking": {
@@ -174,15 +102,87 @@
       }
     },
     {
-      "name": "金融｜金控業/銀行業/保險業",
-      "score": 46.8,
+      "name": "連接器",
+      "score": 39.2,
       "scoreChange": null,
-      "change": -1.74,
-      "asOf": "2026-11-19",
+      "change": -6.41,
+      "asOf": "2026-11-20",
       "history": [
         {
-          "date": "2026-11-19",
-          "score": 46.8
+          "date": "2026-11-20",
+          "score": 39.2
+        }
+      ],
+      "ranking": {
+        "status": "unavailable",
+        "previousRank": null,
+        "change": null
+      }
+    },
+    {
+      "name": "電信",
+      "score": 39.06,
+      "scoreChange": null,
+      "change": -3.42,
+      "asOf": "2026-11-20",
+      "history": [
+        {
+          "date": "2026-11-20",
+          "score": 39.06
+        }
+      ],
+      "ranking": {
+        "status": "unavailable",
+        "previousRank": null,
+        "change": null
+      }
+    },
+    {
+      "name": "通路",
+      "score": 39.06,
+      "scoreChange": null,
+      "change": -3.17,
+      "asOf": "2026-11-20",
+      "history": [
+        {
+          "date": "2026-11-20",
+          "score": 39.06
+        }
+      ],
+      "ranking": {
+        "status": "unavailable",
+        "previousRank": null,
+        "change": null
+      }
+    },
+    {
+      "name": "製藥｜藥品代理銷售及通路",
+      "score": 38.16,
+      "scoreChange": null,
+      "change": -1.73,
+      "asOf": "2026-11-20",
+      "history": [
+        {
+          "date": "2026-11-20",
+          "score": 38.16
+        }
+      ],
+      "ranking": {
+        "status": "unavailable",
+        "previousRank": null,
+        "change": null
+      }
+    },
+    {
+      "name": "油電燃氣｜天然瓦斯供應",
+      "score": 38.12,
+      "scoreChange": null,
+      "change": -1.67,
+      "asOf": "2026-11-20",
+      "history": [
+        {
+          "date": "2026-11-20",
+          "score": 38.12
         }
       ],
       "ranking": {
@@ -194,8 +194,8 @@
   ],
   "history": [
     {
-      "date": "2026-11-20",
-      "score": 35.35
+      "date": "2026-11-21",
+      "score": 33.28
     }
   ],
   "highlights": [],
@@ -205,9 +205,9 @@
       "name": "WTI 原油期貨",
       "group": "焦點指標",
       "unit": "美元／桶",
-      "price": 83.09,
-      "changePct": -0.2,
-      "asOf": "2026-11-19",
+      "price": 83.19,
+      "changePct": -0.02,
+      "asOf": "2026-11-20",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/CL%3DF/"
@@ -217,9 +217,9 @@
       "name": "黃金期貨",
       "group": "焦點指標",
       "unit": "美元／金衡盎司",
-      "price": 3548.1,
-      "changePct": -5.18,
-      "asOf": "2026-11-19",
+      "price": 3537.0,
+      "changePct": -4.03,
+      "asOf": "2026-11-20",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/GC%3DF/"
@@ -229,9 +229,9 @@
       "name": "VIX 恐慌指數",
       "group": "焦點指標",
       "unit": "點",
-      "price": 28.44,
-      "changePct": 15.8,
-      "asOf": "2026-11-19",
+      "price": 31.4,
+      "changePct": 10.41,
+      "asOf": "2026-11-20",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/%5EVIX/"
@@ -241,9 +241,9 @@
       "name": "美國 S&P 500",
       "group": "各國股市",
       "unit": "點",
-      "price": 7175.83,
-      "changePct": -2.02,
-      "asOf": "2026-11-19",
+      "price": 7016.79,
+      "changePct": -2.22,
+      "asOf": "2026-11-20",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/%5EGSPC/"
@@ -253,9 +253,9 @@
       "name": "美國 Nasdaq",
       "group": "各國股市",
       "unit": "點",
-      "price": 23879.2,
-      "changePct": -2.25,
-      "asOf": "2026-11-19",
+      "price": 23020.34,
+      "changePct": -3.6,
+      "asOf": "2026-11-20",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/%5EIXIC/"
@@ -265,9 +265,9 @@
       "name": "費城半導體",
       "group": "各國股市",
       "unit": "點",
-      "price": 9419.72,
-      "changePct": -2.41,
-      "asOf": "2026-11-19",
+      "price": 8627.58,
+      "changePct": -8.41,
+      "asOf": "2026-11-20",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/%5ESOX/"
@@ -277,9 +277,9 @@
       "name": "台灣加權",
       "group": "各國股市",
       "unit": "點",
-      "price": 36044.86,
-      "changePct": -6.2,
-      "asOf": "2026-11-20",
+      "price": 38426.89,
+      "changePct": -4.4,
+      "asOf": "2026-11-19",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/%5ETWII/"
@@ -289,9 +289,9 @@
       "name": "台灣櫃買",
       "group": "各國股市",
       "unit": "點",
-      "price": 285.33,
-      "changePct": -7.22,
-      "asOf": "2026-11-19",
+      "price": 263.31,
+      "changePct": -7.72,
+      "asOf": "2026-11-20",
       "status": "available",
       "source": "FinMind",
       "sourceUrl": "https://finmind.github.io/tutor/TaiwanMarket/Technical/"
@@ -301,9 +301,9 @@
       "name": "日本日經 225",
       "group": "各國股市",
       "unit": "點",
-      "price": 56775.04,
-      "changePct": -4.49,
-      "asOf": "2026-11-20",
+      "price": 59444.21,
+      "changePct": 0.71,
+      "asOf": "2026-11-19",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/%5EN225/"
@@ -313,9 +313,9 @@
       "name": "韓國 KOSPI",
       "group": "各國股市",
       "unit": "點",
-      "price": 4901.74,
-      "changePct": -4.6,
-      "asOf": "2026-11-20",
+      "price": 5137.89,
+      "changePct": 1.39,
+      "asOf": "2026-11-19",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/%5EKS11/"
@@ -325,9 +325,9 @@
       "name": "香港恒生",
       "group": "各國股市",
       "unit": "點",
-      "price": 22385.4,
-      "changePct": -2.0,
-      "asOf": "2026-11-20",
+      "price": 22841.62,
+      "changePct": -1.95,
+      "asOf": "2026-11-19",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/%5EHSI/"
@@ -349,9 +349,9 @@
       "name": "中國上證",
       "group": "各國股市",
       "unit": "點",
-      "price": 3515.0,
-      "changePct": -1.75,
-      "asOf": "2026-11-20",
+      "price": 3577.62,
+      "changePct": -0.28,
+      "asOf": "2026-11-19",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/000001.SS/"
@@ -361,9 +361,9 @@
       "name": "美元指數 DXY",
       "group": "匯率",
       "unit": "點",
-      "price": 103.88,
-      "changePct": 0.02,
-      "asOf": "2026-11-19",
+      "price": 103.84,
+      "changePct": -0.06,
+      "asOf": "2026-11-20",
       "status": "available",
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/DX-Y.NYB/"
@@ -373,8 +373,8 @@
       "name": "美元兌台幣",
       "group": "匯率",
       "unit": "台幣／美元",
-      "price": 32.99,
-      "changePct": 0.18,
+      "price": 32.95,
+      "changePct": 0.05,
       "asOf": "2026-11-20",
       "status": "available",
       "source": "Yahoo Finance",
