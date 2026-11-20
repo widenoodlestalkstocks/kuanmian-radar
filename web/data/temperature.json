@@ -1,23 +1,27 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-11-19",
-  "generatedAt": "2026-11-19T22:42:20.462303+00:00",
+  "asOf": "2026-11-20",
+  "generatedAt": "2026-11-20T17:56:43.249477+00:00",
   "latest": {
-    "date": "2026-11-19",
-    "temperature": 19,
+    "date": "2026-11-20",
+    "temperature": 25,
     "structure": {
-      "title": "土洋對作"
+      "title": "恐慌超跌"
     }
   },
   "holdingReference": {
-    "asOf": "2026-11-19",
-    "percent": 20
+    "asOf": "2026-11-20",
+    "percent": 0
   },
   "signal": {
-    "tone": "cold",
-    "label": "低溫警示"
+    "tone": "caution",
+    "label": "恐慌留意"
   },
   "history": [
+    {
+      "date": "2026-11-20",
+      "temperature": 25
+    },
     {
       "date": "2026-11-19",
       "temperature": 19
@@ -156,8 +160,14 @@
     }
   ],
   "chips": {
-    "asOf": "2026-11-19",
+    "asOf": "2026-11-20",
     "institutional": [
+      {
+        "date": "2026-11-20",
+        "foreign": -95,
+        "trust": -73,
+        "dealer": -341
+      },
       {
         "date": "2026-11-19",
         "foreign": -243,
@@ -181,18 +191,12 @@
         "foreign": -702,
         "trust": -183,
         "dealer": -259
-      },
-      {
-        "date": "2026-11-13",
-        "foreign": 288,
-        "trust": 95,
-        "dealer": 69
       }
     ],
     "foreignFutures": {
-      "asOf": "2026-11-19",
-      "net": -99219.0,
-      "change": 219.0
+      "asOf": "2026-11-20",
+      "net": -97863.0,
+      "change": 1356.0
     }
   }
 }
