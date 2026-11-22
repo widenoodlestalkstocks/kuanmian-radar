@@ -7,9 +7,9 @@
     "label": "資金偏弱"
   },
   "asOf": "2026-11-20",
-  "snapshotDate": "2026-11-21",
-  "generatedAt": "2026-11-21T03:09:39.505816+00:00",
-  "scoreChange": null,
+  "snapshotDate": "2026-11-22",
+  "generatedAt": "2026-11-22T02:08:45.694926+00:00",
+  "scoreChange": 0.0,
   "industry": [
     {
       "name": "電機機械｜輸送機械及零配件",
@@ -196,6 +196,10 @@
     {
       "date": "2026-11-21",
       "score": 32.69
+    },
+    {
+      "date": "2026-11-22",
+      "score": 32.69
     }
   ],
   "highlights": [],
@@ -205,8 +209,8 @@
       "name": "WTI 原油期貨",
       "group": "焦點指標",
       "unit": "美元／桶",
-      "price": 83.62,
-      "changePct": 0.49,
+      "price": 83.98,
+      "changePct": 0.93,
       "asOf": "2026-11-20",
       "status": "available",
       "source": "Yahoo Finance",
@@ -217,8 +221,8 @@
       "name": "黃金期貨",
       "group": "焦點指標",
       "unit": "美元／金衡盎司",
-      "price": 3539.0,
-      "changePct": -3.98,
+      "price": 3515.4,
+      "changePct": -4.62,
       "asOf": "2026-11-20",
       "status": "available",
       "source": "Yahoo Finance",
@@ -361,8 +365,8 @@
       "name": "美元指數 DXY",
       "group": "匯率",
       "unit": "點",
-      "price": 103.84,
-      "changePct": -0.06,
+      "price": 103.81,
+      "changePct": -0.09,
       "asOf": "2026-11-20",
       "status": "available",
       "source": "Yahoo Finance",
