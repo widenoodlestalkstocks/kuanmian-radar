@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-11-24",
-  "generatedAt": "2026-11-24T23:58:36.732648+00:00",
+  "asOf": "2026-11-25",
+  "generatedAt": "2026-11-25T17:34:59.526300+00:00",
   "latest": {
-    "date": "2026-11-24",
-    "temperature": 46,
+    "date": "2026-11-25",
+    "temperature": 25,
     "structure": {
       "title": "土洋對作"
     }
   },
   "holdingReference": {
-    "asOf": "2026-11-24",
+    "asOf": "2026-11-25",
     "percent": 20
   },
   "signal": {
@@ -18,6 +18,10 @@
     "label": "土洋對作"
   },
   "history": [
+    {
+      "date": "2026-11-25",
+      "temperature": 25
+    },
     {
       "date": "2026-11-24",
       "temperature": 46
@@ -168,8 +172,14 @@
     }
   ],
   "chips": {
-    "asOf": "2026-11-24",
+    "asOf": "2026-11-25",
     "institutional": [
+      {
+        "date": "2026-11-25",
+        "foreign": -1237,
+        "trust": 550,
+        "dealer": -129
+      },
       {
         "date": "2026-11-24",
         "foreign": -504,
@@ -193,18 +203,12 @@
         "foreign": -243,
         "trust": 44,
         "dealer": -233
-      },
-      {
-        "date": "2026-11-18",
-        "foreign": -766,
-        "trust": 166,
-        "dealer": -42
       }
     ],
     "foreignFutures": {
-      "asOf": "2026-11-24",
-      "net": -103182.0,
-      "change": 250.0
+      "asOf": "2026-11-25",
+      "net": -105709.0,
+      "change": -2527.0
     }
   }
 }
