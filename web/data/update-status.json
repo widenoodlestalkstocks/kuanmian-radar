@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T17:34:59.526300+00:00",
+  "generatedAt": "2026-11-25T19:25:40.454370+00:00",
   "components": {
     "radar": {
       "status": "success",
-      "attemptedAt": "2026-11-25T04:52:46.954474+00:00",
-      "lastSuccessAt": "2026-11-25T04:52:46.954474+00:00",
-      "asOf": "2026-11-24",
+      "attemptedAt": "2026-11-25T19:25:40.454370+00:00",
+      "lastSuccessAt": "2026-11-25T19:25:40.454370+00:00",
+      "asOf": "2026-11-25",
       "errorCode": null,
       "message": null
     },
