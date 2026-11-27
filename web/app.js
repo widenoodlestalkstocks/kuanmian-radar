@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const APP_VERSION = "20261116-25";
+  const APP_VERSION = "20261127-26";
   const state = { radar: null, temperature: null, updateStatus: null, errors: {}, busy: false, view: "market", industryMode: "ranking", radarSelection: null, expandedIndustries: new Set(), globalFilter: "focus", watchedIndustries: [], watchedMessage: "" };
   const byId = (id) => document.getElementById(id);
   let radarPlot = null, radarPlotObserver = null, radarLayoutFrame = null;
@@ -563,9 +563,10 @@
       .map((point) => dateKey(point.date)).filter((date) => date && date < dateKey(row.asOf ?? state.radar?.asOf));
     const previous = [...new Set(history)].sort().at(-1);
     const comparison = previous ? `較 ${shortDate(previous)}` : "較前次紀錄";
-    const label = delta === null ? "比較資料不足" : `${comparison}${delta > 0 ? "上升" : delta < 0 ? "下降" : "持平"} ${fmt(Math.abs(delta), 2)} 分`;
+    const missingHistory = delta === null && (Array.isArray(row.history) ? row.history : []).some((point) => isObject(point) && point.score === null);
+    const label = delta === null ? (missingHistory ? `前次資料不足，資料日 ${dateLabel(row.asOf ?? state.radar?.asOf)}` : "比較資料不足") : `${comparison}${delta > 0 ? "上升" : delta < 0 ? "下降" : "持平"} ${fmt(Math.abs(delta), 2)} 分`;
     const symbol = direction === "up" ? "▲" : direction === "down" ? "▼" : "";
-    const result = delta === null ? "待比較" : delta === 0 ? "持平 0" : signed(delta, "");
+    const result = delta === null ? (missingHistory ? "暫不比較" : "待比較") : delta === 0 ? "持平 0" : signed(delta, "");
     return `<span class="industry-delta" data-direction="${direction}" aria-label="${esc(label)}" title="${esc(label)}">${symbol ? `<span aria-hidden="true">${symbol}</span>` : ""}<span aria-hidden="true">${esc(result)}</span></span>`;
   }
 
@@ -747,8 +748,9 @@
     if (!dates.size && observed && overviewScore(industry.score) !== null) dates.set(observed, { date: observed, score: overviewScore(industry.score) });
     const rows = [...dates.values()].sort((a, b) => a.date.localeCompare(b.date)).slice(-5);
     const valid = rows.filter((row) => row.score !== null);
+    const missingHistory = rows.some((row) => row.score === null);
     const title = `<h3>近5個交易日資金分數</h3>`;
-    if (!valid.length) return `<section class="industry-trend">${title}<p class="industry-trend-empty">資料正在累積，更新後會顯示走勢。</p></section>`;
+    if (!valid.length) return `<section class="industry-trend">${title}<p class="industry-trend-empty">${missingHistory ? "歷史資料不足，暫不比較。" : "資料正在累積，更新後會顯示走勢。"}</p></section>`;
     if (rows.length === 1 && valid.length === 1) return `<section class="industry-trend industry-trend-single"><h3>資金分數紀錄</h3><p class="industry-trend-single-value"><time datetime="${valid[0].date}">${esc(dateLabel(valid[0].date))}</time><strong class="industry-trend-single-score">${esc(fmt(valid[0].score))}分</strong></p><p class="industry-trend-caption">已累積1筆資料，後續逐日加入走勢。</p></section>`;
     const x = (index) => (index + 0.5) / rows.length * 100;
     const y = (score) => 100 - score;
@@ -762,9 +764,9 @@
     const lines = segments.filter((part) => part.length > 1).map((part) => `<polyline class="industry-trend-line" points="${part.map((point) => `${point.x.toFixed(3)},${point.y.toFixed(3)}`).join(" ")}" fill="none" vector-effect="non-scaling-stroke"/>`).join("");
     const dots = segments.flatMap((part) => part.map((point) => `<span class="industry-trend-point" style="left:${point.x.toFixed(3)}%;top:${point.y.toFixed(3)}%" aria-hidden="true"></span>`)).join("");
     const description = rows.map((row) => `${dateLabel(row.date)}：${row.score === null ? "缺資料" : `${fmt(row.score)}分`}`).join("，");
-    const count = valid.length < 5 ? `已累積${valid.length}筆資料` : "5筆交易日紀錄";
+    const count = missingHistory && valid.length < 2 ? "歷史資料不足" : valid.length < 5 ? `已累積${valid.length}筆資料` : "5筆交易日紀錄";
     const values = rows.map((row) => `<div><dt><time datetime="${row.date}">${esc(shortDate(row.date))}</time></dt><dd>${esc(fmt(row.score))}<span class="sr-only">${row.score === null ? "缺資料" : "分"}</span></dd></div>`).join("");
-    return `<section class="industry-trend">${title}<p class="industry-trend-meta"><span>${count}</span><span>0–100分</span></p><div class="industry-trend-plot"><div class="industry-trend-drawing"><svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="${esc(`資金分數走勢，${description}`)}"><g class="industry-trend-grid" aria-hidden="true">${[0, 50, 100].map((value) => `<line x1="0" y1="${value}" x2="100" y2="${value}" vector-effect="non-scaling-stroke"/>`).join("")}</g>${lines}</svg>${dots}</div></div><dl class="industry-trend-values" style="--trend-days:${rows.length}" aria-label="每日資金分數">${values}</dl><p class="industry-trend-caption">依已保存的交易日紀錄顯示。${valid.length < 5 ? "後續會逐日累積。" : ""}</p>${rows.some((row) => row.score === null) ? `<p class="industry-trend-gap">缺資料的日期以「—」標示。</p>` : ""}</section>`;
+    return `<section class="industry-trend">${title}<p class="industry-trend-meta"><span>${count}</span><span>0–100分</span></p><div class="industry-trend-plot"><div class="industry-trend-drawing"><svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="${esc(`資金分數走勢，${description}`)}"><g class="industry-trend-grid" aria-hidden="true">${[0, 50, 100].map((value) => `<line x1="0" y1="${value}" x2="100" y2="${value}" vector-effect="non-scaling-stroke"/>`).join("")}</g>${lines}</svg>${dots}</div></div><dl class="industry-trend-values" style="--trend-days:${rows.length}" aria-label="每日資金分數">${values}</dl><p class="industry-trend-caption">${missingHistory ? "部分歷史資料暫缺，僅顯示已取得紀錄。" : `依已保存的交易日紀錄顯示。${valid.length < 5 ? "後續會逐日累積。" : ""}`}</p>${missingHistory ? `<p class="industry-trend-gap">缺資料的日期以「—」標示。</p>` : ""}</section>`;
   }
 
   function renderHistory() {

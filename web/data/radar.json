@@ -19,6 +19,22 @@
       "asOf": "2026-11-26",
       "history": [
         {
+          "date": "2026-11-20",
+          "score": null
+        },
+        {
+          "date": "2026-11-23",
+          "score": null
+        },
+        {
+          "date": "2026-11-24",
+          "score": null
+        },
+        {
+          "date": "2026-11-25",
+          "score": null
+        },
+        {
           "date": "2026-11-26",
           "score": 63.5
         }
@@ -32,10 +48,26 @@
     {
       "name": "製藥｜藥品代理銷售及通路",
       "score": 62.98,
-      "scoreChange": null,
+      "scoreChange": 20.23,
       "change": 5.22,
       "asOf": "2026-11-26",
       "history": [
+        {
+          "date": "2026-11-20",
+          "score": 38.16
+        },
+        {
+          "date": "2026-11-23",
+          "score": 42.75
+        },
+        {
+          "date": "2026-11-24",
+          "score": 58.4
+        },
+        {
+          "date": "2026-11-25",
+          "score": 42.75
+        },
         {
           "date": "2026-11-26",
           "score": 62.98
@@ -50,10 +82,26 @@
     {
       "name": "營建",
       "score": 59.9,
-      "scoreChange": null,
+      "scoreChange": 20.7,
       "change": 1.82,
       "asOf": "2026-11-26",
       "history": [
+        {
+          "date": "2026-11-20",
+          "score": 37.7
+        },
+        {
+          "date": "2026-11-23",
+          "score": 37.1
+        },
+        {
+          "date": "2026-11-24",
+          "score": 68.3
+        },
+        {
+          "date": "2026-11-25",
+          "score": 39.2
+        },
         {
           "date": "2026-11-26",
           "score": 59.9
@@ -68,10 +116,26 @@
     {
       "name": "隱形眼鏡",
       "score": 59.17,
-      "scoreChange": null,
+      "scoreChange": 13.5,
       "change": 6.34,
       "asOf": "2026-11-26",
       "history": [
+        {
+          "date": "2026-11-20",
+          "score": 47.92
+        },
+        {
+          "date": "2026-11-23",
+          "score": 47.47
+        },
+        {
+          "date": "2026-11-24",
+          "score": 53.77
+        },
+        {
+          "date": "2026-11-25",
+          "score": 45.67
+        },
         {
           "date": "2026-11-26",
           "score": 59.17
@@ -86,10 +150,26 @@
     {
       "name": "PCB",
       "score": 56.9,
-      "scoreChange": null,
+      "scoreChange": 26.4,
       "change": 8.16,
       "asOf": "2026-11-26",
       "history": [
+        {
+          "date": "2026-11-20",
+          "score": 33.2
+        },
+        {
+          "date": "2026-11-23",
+          "score": 43.1
+        },
+        {
+          "date": "2026-11-24",
+          "score": 47.0
+        },
+        {
+          "date": "2026-11-25",
+          "score": 30.5
+        },
         {
           "date": "2026-11-26",
           "score": 56.9
@@ -104,10 +184,26 @@
     {
       "name": "AI伺服器",
       "score": 56.6,
-      "scoreChange": null,
+      "scoreChange": 26.1,
       "change": 7.76,
       "asOf": "2026-11-26",
       "history": [
+        {
+          "date": "2026-11-20",
+          "score": 32.9
+        },
+        {
+          "date": "2026-11-23",
+          "score": 35.9
+        },
+        {
+          "date": "2026-11-24",
+          "score": 47.9
+        },
+        {
+          "date": "2026-11-25",
+          "score": 30.5
+        },
         {
           "date": "2026-11-26",
           "score": 56.6
@@ -122,10 +218,26 @@
     {
       "name": "網通",
       "score": 56.6,
-      "scoreChange": null,
+      "scoreChange": 24.5,
       "change": 6.33,
       "asOf": "2026-11-26",
       "history": [
+        {
+          "date": "2026-11-20",
+          "score": 32.1
+        },
+        {
+          "date": "2026-11-23",
+          "score": 47.1
+        },
+        {
+          "date": "2026-11-24",
+          "score": 53.4
+        },
+        {
+          "date": "2026-11-25",
+          "score": 32.1
+        },
         {
           "date": "2026-11-26",
           "score": 56.6
@@ -140,10 +252,26 @@
     {
       "name": "紡織",
       "score": 53.45,
-      "scoreChange": null,
+      "scoreChange": 10.09,
       "change": 1.78,
       "asOf": "2026-11-26",
       "history": [
+        {
+          "date": "2026-11-20",
+          "score": 45.69
+        },
+        {
+          "date": "2026-11-23",
+          "score": 57.91
+        },
+        {
+          "date": "2026-11-24",
+          "score": 57.91
+        },
+        {
+          "date": "2026-11-25",
+          "score": 43.36
+        },
         {
           "date": "2026-11-26",
           "score": 53.45
@@ -158,10 +286,26 @@
     {
       "name": "水泥建材",
       "score": 53.32,
-      "scoreChange": null,
+      "scoreChange": 13.05,
       "change": 2.88,
       "asOf": "2026-11-26",
       "history": [
+        {
+          "date": "2026-11-20",
+          "score": 24.67
+        },
+        {
+          "date": "2026-11-23",
+          "score": 26.92
+        },
+        {
+          "date": "2026-11-24",
+          "score": 52.57
+        },
+        {
+          "date": "2026-11-25",
+          "score": 40.27
+        },
         {
           "date": "2026-11-26",
           "score": 53.32
@@ -176,10 +320,26 @@
     {
       "name": "食品",
       "score": 53.3,
-      "scoreChange": null,
+      "scoreChange": 3.8,
       "change": 0.32,
       "asOf": "2026-11-26",
       "history": [
+        {
+          "date": "2026-11-20",
+          "score": 32.9
+        },
+        {
+          "date": "2026-11-23",
+          "score": 37.1
+        },
+        {
+          "date": "2026-11-24",
+          "score": 62.9
+        },
+        {
+          "date": "2026-11-25",
+          "score": 49.5
+        },
         {
           "date": "2026-11-26",
           "score": 53.3
@@ -198,7 +358,14 @@
       "score": 45.47
     }
   ],
-  "highlights": [],
+  "highlights": [
+    {
+      "kind": "score-rise",
+      "title": "可比較產業中，PCB分數上升最多",
+      "detail": "本次 56.9 分，較 11/25 增加 26.4 分。",
+      "asOf": "2026-11-26"
+    }
+  ],
   "globalMarkets": [
     {
       "id": "wti",
